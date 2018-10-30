@@ -1,20 +1,22 @@
 import Foundation
 
-extension _AMFDecoder {
+extension _AMF0Decoder {
     final class UnkeyedContainer {
         var data: Data
         var codingPath: [CodingKey]
         var userInfo: [CodingUserInfoKey: Any]
+        var index: Data.Index
        
         init(data: Data, codingPath: [CodingKey], userInfo: [CodingUserInfoKey : Any]) {
             self.data = data
             self.codingPath = codingPath
             self.userInfo = userInfo
+            self.index = data.startIndex
         }
     }
 }
 
-extension _AMFDecoder.UnkeyedContainer: UnkeyedDecodingContainer {
+extension _AMF0Decoder.UnkeyedContainer: UnkeyedDecodingContainer {
     var count: Int? {
         return 0
     }
@@ -32,20 +34,20 @@ extension _AMFDecoder.UnkeyedContainer: UnkeyedDecodingContainer {
     }
     
     func decode<T>(_ type: T.Type) throws -> T where T : Decodable {
-        return try type.init(from: _AMFDecoder(data: Data()))
+        return try type.init(from: _AMF0Decoder(data: Data()))
     }
     
     func nestedUnkeyedContainer() throws -> UnkeyedDecodingContainer {
-        return _AMFDecoder.UnkeyedContainer(data: data, codingPath: codingPath, userInfo: userInfo)
+        return _AMF0Decoder.UnkeyedContainer(data: data, codingPath: codingPath, userInfo: userInfo)
     }
     
     func nestedContainer<NestedKey>(keyedBy type: NestedKey.Type) throws -> KeyedDecodingContainer<NestedKey> where NestedKey : CodingKey {
-        return _AMFDecoder.KeyedContainer<NestedKey>(data: data, codingPath: codingPath, userInfo: userInfo) as! KeyedDecodingContainer<NestedKey>
+        return _AMF0Decoder.KeyedContainer<NestedKey>(data: data, codingPath: codingPath, userInfo: userInfo) as! KeyedDecodingContainer<NestedKey>
     }
 
     func superDecoder() throws -> Decoder {
-        return _AMFDecoder(data: Data())
+        return _AMF0Decoder(data: Data())
     }
 }
 
-extension _AMFDecoder.UnkeyedContainer: AMFDecodingContainer {}
+extension _AMF0Decoder.UnkeyedContainer: AMFDecodingContainer {}

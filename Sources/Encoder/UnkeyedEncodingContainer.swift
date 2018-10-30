@@ -1,6 +1,6 @@
 import Foundation
 
-extension _AMFEncoder {
+extension _AMF0Encoder {
     final class UnkeyedContainer {
         var codingPath: [CodingKey]
         var userInfo: [CodingUserInfoKey: Any]
@@ -12,7 +12,7 @@ extension _AMFEncoder {
     }
 }
 
-extension _AMFEncoder.UnkeyedContainer: UnkeyedEncodingContainer {
+extension _AMF0Encoder.UnkeyedContainer: UnkeyedEncodingContainer {
     var count: Int {
         return 0
     }
@@ -26,16 +26,16 @@ extension _AMFEncoder.UnkeyedContainer: UnkeyedEncodingContainer {
     }
     
     func nestedContainer<NestedKey>(keyedBy keyType: NestedKey.Type) -> KeyedEncodingContainer<NestedKey> where NestedKey : CodingKey {
-        return _AMFEncoder.KeyedContainer<NestedKey>(codingPath: [], userInfo: [:]) as! KeyedEncodingContainer<NestedKey>
+        return _AMF0Encoder.KeyedContainer<NestedKey>(codingPath: [], userInfo: [:]) as! KeyedEncodingContainer<NestedKey>
     }
     
     func nestedUnkeyedContainer() -> UnkeyedEncodingContainer {
-        return _AMFEncoder.UnkeyedContainer(codingPath: [], userInfo: [:]) as! UnkeyedEncodingContainer
+        return _AMF0Encoder.UnkeyedContainer(codingPath: [], userInfo: [:]) as! UnkeyedEncodingContainer
     }
     
     func superEncoder() -> Encoder {
-        return _AMFEncoder()
+        return _AMF0Encoder()
     }
 }
 
-extension _AMFEncoder.UnkeyedContainer: AMFEncodingContainer {}
+extension _AMF0Encoder.UnkeyedContainer: AMFEncodingContainer {}

@@ -1,35 +1,64 @@
 import Foundation
 
-extension _AMFDecoder {
+extension _AMF0Decoder {
     final class SingleValueContainer {
         var data: Data
         var codingPath: [CodingKey]
         var userInfo: [CodingUserInfoKey: Any]
-    
+        var index: Data.Index
 
         init(data: Data, codingPath: [CodingKey], userInfo: [CodingUserInfoKey : Any]) {
             self.data = data
             self.codingPath = codingPath
             self.userInfo = userInfo
+            self.index = self.data.startIndex
         }
     }
 }
 
-extension _AMFDecoder.SingleValueContainer: SingleValueDecodingContainer {
+extension _AMF0Decoder.SingleValueContainer: SingleValueDecodingContainer {
     func decodeNil() -> Bool {
         return false
     }
     
     func decode(_ type: Bool.Type) throws -> Bool {
-        return false
+        let format = try readByte()
+        switch format {
+        case AMF0Marker.boolean.rawValue:
+            let booleanValue = try readByte()
+            return booleanValue > 0x00
+        default:
+            let context = DecodingError.Context(codingPath: self.codingPath, debugDescription: "Invalid format: \(String(describing: AMF0Marker(rawValue: format)))")
+            throw DecodingError.typeMismatch(Double.self, context)
+        }
     }
     
     func decode(_ type: String.Type) throws -> String {
-        return ""
+        let format = try readByte()
+        switch format {
+        case AMF0Marker.string.rawValue:
+            let length: UInt16 = try read(UInt16.self)
+            let utfData = try read(Int(length))
+            guard let string = String(data: utfData, encoding: .utf8) else {
+                let context = DecodingError.Context(codingPath: self.codingPath, debugDescription: "Cannot load string")
+                throw DecodingError.dataCorrupted(context)
+            }
+            return string
+        default:
+            let context = DecodingError.Context(codingPath: self.codingPath, debugDescription: "Invalid format: \(String(describing: AMF0Marker(rawValue: format)))")
+            throw DecodingError.typeMismatch(Double.self, context)
+        }
     }
     
     func decode(_ type: Double.Type) throws -> Double {
-        return 0
+        let format = try readByte()
+        switch format {
+        case AMF0Marker.number.rawValue:
+            return try Double(bitPattern: read(UInt64.self))
+        default:
+            let context = DecodingError.Context(codingPath: self.codingPath, debugDescription: "Invalid format: \(String(describing: AMF0Marker(rawValue: format)))")
+            throw DecodingError.typeMismatch(Double.self, context)
+        }
     }
     
     func decode(_ type: Float.Type) throws -> Float {
@@ -77,8 +106,14 @@ extension _AMFDecoder.SingleValueContainer: SingleValueDecodingContainer {
     }
   
     func decode<T>(_ type: T.Type) throws -> T where T : Decodable {
-        return try type.init(from: _AMFDecoder(data: Data()))
+        let decoder = _AMF0Decoder(data: self.data)
+        let value = try T(from: decoder)
+        if let nextIndex = decoder.container?.index {
+            self.index = nextIndex
+        }
+
+        return value
     }
 }
 
-extension _AMFDecoder.SingleValueContainer: AMFDecodingContainer {}
+extension _AMF0Decoder.SingleValueContainer: AMFDecodingContainer {}

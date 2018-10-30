@@ -1,6 +1,6 @@
 import Foundation
 
-extension _AMFEncoder {
+extension _AMF0Encoder {
     final class SingleValueContainer {
         var codingPath: [CodingKey]
         var userInfo: [CodingUserInfoKey: Any]
@@ -12,7 +12,7 @@ extension _AMFEncoder {
     }
 }
 
-extension _AMFEncoder.SingleValueContainer: SingleValueEncodingContainer {
+extension _AMF0Encoder.SingleValueContainer: SingleValueEncodingContainer {
     func encodeNil() throws {
 
     }
@@ -78,4 +78,4 @@ extension _AMFEncoder.SingleValueContainer: SingleValueEncodingContainer {
     }
 }
 
-extension _AMFEncoder.SingleValueContainer: AMFEncodingContainer {}
+extension _AMF0Encoder.SingleValueContainer: AMFEncodingContainer {}

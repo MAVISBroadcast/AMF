@@ -3,14 +3,14 @@ import Foundation
 /**
  
  */
-final public class AMFDecoder {
+final public class AMF0Decoder {
     func decode<T>(_ type: T.Type, from data: Data) throws -> T where T : Decodable {
-        let decoder = _AMFDecoder(data: data)
+        let decoder = _AMF0Decoder(data: data)
         return try T(from: decoder)
     }
 }
 
-final class _AMFDecoder {
+final class _AMF0Decoder {
     var codingPath: [CodingKey] = []
     
     var userInfo: [CodingUserInfoKey : Any] = [:]
@@ -23,7 +23,7 @@ final class _AMFDecoder {
     }
 }
 
-extension _AMFDecoder: Decoder {
+extension _AMF0Decoder: Decoder {
     fileprivate func assertCanCreateContainer() {
         precondition(self.container == nil)
     }
@@ -57,5 +57,33 @@ extension _AMFDecoder: Decoder {
 }
 
 protocol AMFDecodingContainer: class {
-    
+    var codingPath: [CodingKey] { get set }
+
+    var userInfo: [CodingUserInfoKey : Any] { get }
+
+    var data: Data { get set }
+    var index: Data.Index { get set }
+}
+
+extension AMFDecodingContainer {
+    func readByte() throws -> UInt8 {
+        return try read(1).first!
+    }
+
+    func read(_ length: Int) throws -> Data {
+        let nextIndex = self.index.advanced(by: length)
+        guard nextIndex <= self.data.endIndex else {
+            let context = DecodingError.Context(codingPath: self.codingPath, debugDescription: "Unexpected end of data")
+            throw DecodingError.dataCorrupted(context)
+        }
+        defer { self.index = nextIndex }
+
+        return self.data.subdata(in: self.index..<nextIndex)
+    }
+
+    func read<T>(_ type: T.Type, endianess: Endianess = .big) throws -> T where T : FixedWidthInteger {
+        let stride = MemoryLayout<T>.stride
+        let bytes = [UInt8](try read(stride))
+        return T(bytes: bytes, endianess: endianess)
+    }
 }

@@ -2,12 +2,12 @@ import XCTest
 @testable import AMF
 
 class AMFRoundTripTests: XCTestCase {
-    var encoder: AMFEncoder!
-    var decoder: AMFDecoder!
+    var encoder: AMF0Encoder!
+    var decoder: AMF0Decoder!
     
     override func setUp() {
-        self.encoder = AMFEncoder()
-        self.decoder = AMFDecoder()
+        self.encoder = AMF0Encoder()
+        self.decoder = AMF0Decoder()
     }
 
 //    func testRoundTrip() {
