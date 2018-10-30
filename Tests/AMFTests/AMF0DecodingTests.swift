@@ -14,6 +14,6 @@ class AMFDecodingTests: XCTestCase {
     }
 
     static var allTests = [
-        ("testDecode", testDecode)
+        ("testDecodeBoolean", testDecodeBoolean)
     ]
 }
