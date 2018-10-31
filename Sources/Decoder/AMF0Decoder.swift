@@ -15,7 +15,7 @@ final class _AMF0Decoder {
     
     var userInfo: [CodingUserInfoKey : Any] = [:]
     
-    var container: AMFDecodingContainer?
+    var container: AMF0DecodingContainer?
     fileprivate var data: Data
     
     init(data: Data) {
@@ -56,7 +56,7 @@ extension _AMF0Decoder: Decoder {
     }
 }
 
-protocol AMFDecodingContainer: class {
+protocol AMF0DecodingContainer: class {
     var codingPath: [CodingKey] { get set }
 
     var userInfo: [CodingUserInfoKey : Any] { get }
@@ -65,7 +65,7 @@ protocol AMFDecodingContainer: class {
     var index: Data.Index { get set }
 }
 
-extension AMFDecodingContainer {
+extension AMF0DecodingContainer {
     func readByte() throws -> UInt8 {
         return try read(1).first!
     }

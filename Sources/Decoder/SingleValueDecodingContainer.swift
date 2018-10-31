@@ -13,12 +13,44 @@ extension _AMF0Decoder {
             self.userInfo = userInfo
             self.index = self.data.startIndex
         }
+
+        var length: Int? {
+            do {
+                let rawFormat = try readByte()
+                if let format = AMF0Marker(rawValue: rawFormat) {
+                    switch format {
+                    case AMF0Marker.boolean:
+                        return 1 + 1
+                    case AMF0Marker.string:
+                        return 1 + 2 + Int(try read(UInt16.self))
+                    case AMF0Marker.number:
+                        return 1 + 8
+                    default:
+                        return nil
+                    }
+                }
+                return nil
+            } catch {
+                return nil
+            }
+        }
     }
 }
 
 extension _AMF0Decoder.SingleValueContainer: SingleValueDecodingContainer {
+
     func decodeNil() -> Bool {
-        return false
+        do {
+            let format = try readByte()
+            switch format {
+            case AMF0Marker.null.rawValue, AMF0Marker.undefined.rawValue:
+                return true
+            default:
+                return false
+            }
+        } catch {
+            return false
+        }
     }
     
     func decode(_ type: Bool.Type) throws -> Bool {
@@ -116,4 +148,4 @@ extension _AMF0Decoder.SingleValueContainer: SingleValueDecodingContainer {
     }
 }
 
-extension _AMF0Decoder.SingleValueContainer: AMFDecodingContainer {}
+extension _AMF0Decoder.SingleValueContainer: AMF0DecodingContainer {}
