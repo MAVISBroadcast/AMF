@@ -20,8 +20,6 @@ extension _AMF0Decoder {
                 switch format {
                 case AMF0Marker.strictArray.rawValue:
                     return Int(try read(UInt32.self))
-                case AMF0Marker.ecmaArray.rawValue:
-                    return Int(try read(UInt32.self))
                 default:
                     return nil
                 }

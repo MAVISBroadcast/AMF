@@ -76,6 +76,14 @@ extension _AMF0Decoder.SingleValueContainer: SingleValueDecodingContainer {
                 throw DecodingError.dataCorrupted(context)
             }
             return string
+        case AMF0Marker.longString.rawValue:
+            let length: UInt32 = try read(UInt32.self)
+            let utfData = try read(Int(length))
+            guard let string = String(data: utfData, encoding: .utf8) else {
+                let context = DecodingError.Context(codingPath: self.codingPath, debugDescription: "Cannot load string")
+                throw DecodingError.dataCorrupted(context)
+            }
+            return string
         default:
             let context = DecodingError.Context(codingPath: self.codingPath, debugDescription: "Invalid format: \(String(describing: AMF0Marker(rawValue: format)))")
             throw DecodingError.typeMismatch(Double.self, context)
@@ -87,6 +95,11 @@ extension _AMF0Decoder.SingleValueContainer: SingleValueDecodingContainer {
         switch format {
         case AMF0Marker.number.rawValue:
             return try Double(bitPattern: read(UInt64.self))
+        case AMF0Marker.date.rawValue:
+            let date = try Double(bitPattern: read(UInt64.self))
+            let currentDate = Date()
+            let difference = currentDate.timeIntervalSince1970 - currentDate.timeIntervalSinceReferenceDate
+            return date - difference
         default:
             let context = DecodingError.Context(codingPath: self.codingPath, debugDescription: "Invalid format: \(String(describing: AMF0Marker(rawValue: format)))")
             throw DecodingError.typeMismatch(Double.self, context)
