@@ -97,8 +97,7 @@ extension _AMF0Decoder.SingleValueContainer: SingleValueDecodingContainer {
             return try Double(bitPattern: read(UInt64.self))
         case AMF0Marker.date.rawValue:
             let date = try Double(bitPattern: read(UInt64.self))
-            let currentDate = Date()
-            let difference = currentDate.timeIntervalSince1970 - currentDate.timeIntervalSinceReferenceDate
+            let difference = Double(978307200) // Difference between 01/01/1970 and 01/01/2001
             return date - difference
         default:
             let context = DecodingError.Context(codingPath: self.codingPath, debugDescription: "Invalid format: \(String(describing: AMF0Marker(rawValue: format)))")
