@@ -3,7 +3,10 @@ import Foundation
 extension _AMF0Decoder {
     final class KeyedContainer<Key> where Key: CodingKey {
         lazy var nestedContainers: [String: AMF0DecodingContainer] = {
+            return (try? resolveContainers()) ?? [:]
+         }()
 
+        func resolveContainers() throws -> [String: AMF0DecodingContainer] {
             do {
                 guard let objectMarker = try AMF0Marker(rawValue: readByte()) else {
                     return [:]
@@ -14,6 +17,13 @@ extension _AMF0Decoder {
                     return nestedContainersForObject()
                 case .ecmaArray:
                     return nestedContainersForECMAArray()
+                case .string:
+                    let length = try read(UInt16.self)
+                    let stringData = try read(Int(length))
+                    return try resolveContainers()
+                case .number:
+                    let number = try read(UInt64.self)
+                    return try resolveContainers()
                 default:
                     return [:]
                 }
@@ -21,7 +31,7 @@ extension _AMF0Decoder {
                 return [:]
             }
 
-         }()
+        }
 
         var data: Data
         var index: Data.Index
