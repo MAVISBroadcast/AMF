@@ -6,12 +6,14 @@ extension _AMF0Decoder {
         var codingPath: [CodingKey]
         var userInfo: [CodingUserInfoKey: Any]
         var index: Data.Index
+        var referenceTable: ReferenceTable
 
-        init(data: Data, codingPath: [CodingKey], userInfo: [CodingUserInfoKey : Any]) {
+        init(data: Data, codingPath: [CodingKey], userInfo: [CodingUserInfoKey : Any], referenceTable: ReferenceTable) {
             self.data = data
             self.codingPath = codingPath
             self.userInfo = userInfo
             self.index = self.data.startIndex
+            self.referenceTable = referenceTable
         }
 
         var length: Int? {
@@ -20,11 +22,15 @@ extension _AMF0Decoder {
                 if let format = AMF0Marker(rawValue: rawFormat) {
                     switch format {
                     case AMF0Marker.boolean:
-                        return 1 + 1
+                        return 1 + 1 // marker + one byte
                     case AMF0Marker.string:
-                        return 1 + 2 + Int(try read(UInt16.self))
+                        return 1 + 2 + Int(try read(UInt16.self)) // marker + length UInt16 + actual length of string
+                    case AMF0Marker.longString:
+                        return 1 + 4 + Int(try read(UInt16.self)) // marker + length UInt32 + actual length of string
                     case AMF0Marker.number:
-                        return 1 + 8
+                        return 1 + 8 // marker + IEEE 754 DOUBLE
+                    case AMF0Marker.date:
+                        return 1 + 8 + 2 // marker + IEEE 754 DOUBLE + unused UInt16 time zone int
                     default:
                         return nil
                     }
@@ -150,7 +156,7 @@ extension _AMF0Decoder.SingleValueContainer: SingleValueDecodingContainer {
     }
   
     func decode<T>(_ type: T.Type) throws -> T where T : Decodable {
-        let decoder = _AMF0Decoder(data: self.data)
+        let decoder = _AMF0Decoder(data: self.data, referenceTable: self.referenceTable)
         let value = try T(from: decoder)
         if let nextIndex = decoder.container?.index {
             self.index = nextIndex

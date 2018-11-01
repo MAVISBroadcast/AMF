@@ -12,14 +12,19 @@ extension _AMF0Decoder {
         
         var data: Data
         var index: Data.Index
+        var referenceTable: ReferenceTable
+        var format: AMF0Marker?
         
         lazy var count: Int? = {
             do {
                 let format = try self.readByte()
+                self.format = AMF0Marker(rawValue: format)
 
                 switch format {
                 case AMF0Marker.strictArray.rawValue:
                     return Int(try read(UInt32.self))
+                case AMF0Marker.reference.rawValue:
+                    return -1
                 default:
                     return nil
                 }
@@ -45,7 +50,7 @@ extension _AMF0Decoder {
                     nestedContainers.append(container)
                 }
             } catch {
-                fatalError() // FIXME
+//                fatalError() // FIXME
             }
 
             self.currentIndex = 0
@@ -53,11 +58,12 @@ extension _AMF0Decoder {
             return nestedContainers
         }()
         
-        init(data: Data, codingPath: [CodingKey], userInfo: [CodingUserInfoKey : Any]) {
+        init(data: Data, codingPath: [CodingKey], userInfo: [CodingUserInfoKey : Any], referenceTable: ReferenceTable) {
             self.codingPath = codingPath
             self.userInfo = userInfo
             self.data = data
             self.index = self.data.startIndex
+            self.referenceTable = referenceTable
         }
         
         var isAtEnd: Bool {
@@ -68,7 +74,7 @@ extension _AMF0Decoder {
         }
         
         func checkCanDecodeValue() throws {
-            guard !self.isAtEnd else {
+            guard !self.isAtEnd || format == .null else {
                 throw DecodingError.dataCorruptedError(in: self, debugDescription: "Unexpected end of data")
             }
         }
@@ -91,9 +97,17 @@ extension _AMF0Decoder.UnkeyedContainer: UnkeyedDecodingContainer {
         try checkCanDecodeValue()
 
         defer { self.currentIndex += 1 }
-        
+
+        if format == .null {
+            let singleValueContainer = _AMF0Decoder.SingleValueContainer(data: data, codingPath: codingPath, userInfo: userInfo, referenceTable: referenceTable)
+            let decoder = _AMF0Decoder(data: singleValueContainer.data, referenceTable: self.referenceTable)
+            let value = try T(from: decoder)
+
+            return value
+       }
+
         let container = self.nestedContainers[self.currentIndex]
-        let decoder = _AMF0Decoder(data: container.data)
+        let decoder = _AMF0Decoder(data: container.data, referenceTable: self.referenceTable)
         let value = try T(from: decoder)
         
         return value
@@ -118,7 +132,7 @@ extension _AMF0Decoder.UnkeyedContainer: UnkeyedDecodingContainer {
     }
 
     func superDecoder() throws -> Decoder {
-        return _AMF0Decoder(data: self.data)
+        return _AMF0Decoder(data: self.data, referenceTable: self.referenceTable)
     }
 }
 
@@ -137,9 +151,14 @@ extension _AMF0Decoder.UnkeyedContainer {
             throw DecodingError.typeMismatch(Double.self, context)
         }
 
+        if format == .object || format == .strictArray || format == .typedObject || format == .ecmaArray {
+
+        }
+
         switch format {
         case .object:
-            let container = _AMF0Decoder.KeyedContainer<AnyCodingKey>(data: self.data.suffix(from: startIndex), codingPath: self.nestedCodingPath, userInfo: self.userInfo)
+            let container = _AMF0Decoder.KeyedContainer<AnyCodingKey>(data: self.data.suffix(from: startIndex), codingPath: self.nestedCodingPath, userInfo: self.userInfo, referenceTable: self.referenceTable)
+            referenceTable.decodingArray.append(container)
             _ = container.nestedContainers // FIXME
             self.index = container.index
             return container
@@ -149,6 +168,9 @@ extension _AMF0Decoder.UnkeyedContainer {
             length = 8
         case .string:
             length = Int(try read(UInt16.self))
+        case .reference:
+            let reference = Int(try read(UInt16.self))
+            return referenceTable.decodingArray[reference]
         default:
             throw DecodingError.dataCorruptedError(in: self, debugDescription: "Invalid format: \(format)")
         }
@@ -156,7 +178,12 @@ extension _AMF0Decoder.UnkeyedContainer {
         let range: Range<Data.Index> = startIndex..<self.index.advanced(by: length)
         self.index = range.upperBound
         
-        let container = _AMF0Decoder.SingleValueContainer(data: self.data.subdata(in: range), codingPath: self.codingPath, userInfo: self.userInfo)
+        let container = _AMF0Decoder.SingleValueContainer(
+            data: data.subdata(in: range),
+            codingPath: codingPath,
+            userInfo: userInfo,
+            referenceTable: referenceTable
+        )
 
         return container
     }

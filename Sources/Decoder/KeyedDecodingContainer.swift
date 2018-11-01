@@ -27,16 +27,18 @@ extension _AMF0Decoder {
         var index: Data.Index
         var codingPath: [CodingKey]
         var userInfo: [CodingUserInfoKey: Any]
+        var referenceTable: ReferenceTable
 
         func nestedCodingPath(forKey key: CodingKey) -> [CodingKey] {
             return self.codingPath + [key]
         }
         
-        init(data: Data, codingPath: [CodingKey], userInfo: [CodingUserInfoKey : Any]) {
+        init(data: Data, codingPath: [CodingKey], userInfo: [CodingUserInfoKey : Any], referenceTable: ReferenceTable) {
             self.codingPath = codingPath
             self.userInfo = userInfo
             self.data = data
             self.index = self.data.startIndex
+            self.referenceTable = referenceTable
         }
         
         func checkCanDecodeValue(forKey key: Key) throws {
@@ -97,11 +99,21 @@ extension _AMF0Decoder {
                 throw DecodingError.dataCorrupted(context)
             }
 
-            let unkeyedContainer = UnkeyedContainer(data: self.data[self.index...], codingPath: self.codingPath, userInfo: self.userInfo)
+            let unkeyedContainer = UnkeyedContainer(
+                data: data[self.index...],
+                codingPath: codingPath,
+                userInfo: userInfo,
+                referenceTable: referenceTable
+            )
 
             let containers = unkeyedContainer.nestedContainers
             if containers.isEmpty {
-                let singleValueContainer = SingleValueContainer(data: self.data[self.index...], codingPath: self.codingPath, userInfo: self.userInfo)
+                let singleValueContainer = SingleValueContainer(
+                    data: data[self.index...],
+                    codingPath: codingPath,
+                    userInfo: userInfo,
+                    referenceTable: referenceTable
+                )
                 let length = singleValueContainer.length ?? 0
                 self.index += length
                 return (key, singleValueContainer)
@@ -139,7 +151,7 @@ extension _AMF0Decoder.KeyedContainer: KeyedDecodingContainerProtocol {
         try checkCanDecodeValue(forKey: key)
         
         let container = self.nestedContainers[key.stringValue]!
-        let decoder = _AMF0Decoder(data: container.data)
+        let decoder = _AMF0Decoder(data: container.data, referenceTable: self.referenceTable)
         let value = try T(from: decoder)
         
         return value
@@ -167,11 +179,11 @@ extension _AMF0Decoder.KeyedContainer: KeyedDecodingContainerProtocol {
     }
     
     func superDecoder() throws -> Decoder {
-        return _AMF0Decoder(data: self.data)
+        return _AMF0Decoder(data: self.data, referenceTable: self.referenceTable)
     }
     
     func superDecoder(forKey key: Key) throws -> Decoder {
-        let decoder = _AMF0Decoder(data: self.data)
+        let decoder = _AMF0Decoder(data: self.data, referenceTable: self.referenceTable)
         decoder.codingPath = [key]
         
         return decoder

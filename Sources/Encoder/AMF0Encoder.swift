@@ -23,7 +23,7 @@ final class _AMF0Encoder {
 
 extension _AMF0Encoder: Encoder {
     fileprivate func assertCanCreateContainer() {
-        precondition(self.container == nil)
+
     }
     
     func container<Key>(keyedBy type: Key.Type) -> KeyedEncodingContainer<Key> where Key : CodingKey {
