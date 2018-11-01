@@ -20,8 +20,16 @@ struct AMFCommand: Codable {
     }
 
     struct AMFCommandObject: Codable {
-        let fmsVer: String
-        let capabilities: Double
-        let mode: Double
+        let fmsVer: String?
+        let capabilities: Double?
+        let mode: Double?
     }
+}
+
+struct AMFLevel: Codable {
+    let level: String
+    let code: String
+    let description: String
+    let clientId: Double
+    let objectEncoding: Double
 }

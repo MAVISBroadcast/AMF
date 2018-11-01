@@ -156,7 +156,7 @@ extension _AMF0Decoder.UnkeyedContainer {
         }
 
         switch format {
-        case .object:
+        case .object, .ecmaArray:
             let container = _AMF0Decoder.KeyedContainer<AnyCodingKey>(data: self.data.suffix(from: startIndex), codingPath: self.nestedCodingPath, userInfo: self.userInfo, referenceTable: self.referenceTable)
             referenceTable.decodingArray.append(container)
             _ = container.nestedContainers // FIXME

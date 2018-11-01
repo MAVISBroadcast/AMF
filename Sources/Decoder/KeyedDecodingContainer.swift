@@ -74,6 +74,15 @@ extension _AMF0Decoder {
                 guard let objectEndMarker = AMF0Marker(rawValue: rawByte), objectEndMarker == .objectEnd else {
                     return [:]
                 }
+//                do {
+//                    if let potentialNextObject = try AMF0Marker(rawValue: readByte()), potentialNextObject == .object {
+//                        return nestedContainers.merging(nestedContainersForObject(), uniquingKeysWith: { (left, right) -> AMF0DecodingContainer in
+//                            return left
+//                        })
+//                    } else {
+//                        self.index -= 1
+//                    }
+//                }
             } catch {
                 fatalError("\(error)") // FIXME
             }
