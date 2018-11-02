@@ -37,7 +37,7 @@ final class _AMF0Decoder {
 
 extension _AMF0Decoder: Decoder {
     fileprivate func assertCanCreateContainer() {
-        //precondition(self.container == nil)
+        precondition(self.container == nil)
     }
         
     func container<Key>(keyedBy type: Key.Type) -> KeyedDecodingContainer<Key> where Key : CodingKey {
