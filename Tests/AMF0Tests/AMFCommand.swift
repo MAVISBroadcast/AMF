@@ -24,3 +24,7 @@ struct AMFInformation: Codable {
 struct AMFInformationData: Codable {
     let version: String
 }
+
+struct ObjectWithDate: Codable {
+    let date: Date
+}

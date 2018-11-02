@@ -5,6 +5,8 @@ import Foundation
  */
 public class AMF0Encoder {
     func encode(_ value: Encodable) throws -> Data {
+        let type = Swift.type(of: value)
+        print("type: \(type)")
         let encoder = _AMF0Encoder()
         try value.encode(to: encoder)
         return encoder.data
@@ -16,14 +18,16 @@ final class _AMF0Encoder {
     
     var userInfo: [CodingUserInfoKey : Any] = [:]
     
-    fileprivate var container: AMFEncodingContainer?
+    fileprivate var container: _AMF0EncodingContainer?
 
-    var data = Data()
+    var data: Data {
+        return container?.data ?? Data()
+    }
 }
 
 extension _AMF0Encoder: Encoder {
     fileprivate func assertCanCreateContainer() {
-
+        precondition(self.container == nil)
     }
     
     func container<Key>(keyedBy type: Key.Type) -> KeyedEncodingContainer<Key> where Key : CodingKey {
@@ -54,6 +58,6 @@ extension _AMF0Encoder: Encoder {
     }
 }
 
-protocol AMFEncodingContainer: class {
-    
+protocol _AMF0EncodingContainer: class {
+    var data: Data { get }
 }

@@ -20,4 +20,21 @@ extension FixedWidthInteger {
             }
         }
     }
+
+    func bytes(endianess: Endianess = .big) -> [UInt8] {
+        let capacity = MemoryLayout<Self>.size
+        var mutableValue: Self = {
+            switch endianess {
+            case .big:
+                return self.bigEndian
+            case .little:
+                return self.littleEndian
+            }
+        }()
+        return withUnsafePointer(to: &mutableValue) {
+            return $0.withMemoryRebound(to: UInt8.self, capacity: capacity) {
+                return Array(UnsafeBufferPointer(start: $0, count: capacity))
+            }
+        }
+    }
 }
