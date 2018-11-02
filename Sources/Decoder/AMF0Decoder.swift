@@ -7,12 +7,14 @@ final public class AMF0Decoder {
     #if DEBUG
     var _decoder: _AMF0Decoder?
     #endif
+    public var finishedIndex: Data.Index = 0
 
     func decode<T>(_ type: T.Type, from data: Data) throws -> T where T : Decodable {
         let decoder = _AMF0Decoder(data: data, referenceTable: ReferenceTable())
         #if DEBUG
         self._decoder = decoder
         #endif
+        defer { finishedIndex = decoder.container?.index ?? 0 }
         return try T(from: decoder)
     }
 }

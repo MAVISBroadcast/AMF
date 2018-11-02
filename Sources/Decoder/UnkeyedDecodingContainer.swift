@@ -50,7 +50,7 @@ extension _AMF0Decoder {
                     nestedContainers.append(container)
                 }
             } catch {
-//                fatalError() // FIXME
+                fatalError() // FIXME
             }
 
             self.currentIndex = 0

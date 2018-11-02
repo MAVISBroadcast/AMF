@@ -17,13 +17,6 @@ extension _AMF0Decoder {
                     return nestedContainersForObject()
                 case .ecmaArray:
                     return nestedContainersForECMAArray()
-                case .string:
-                    let length = try read(UInt16.self)
-                    let stringData = try read(Int(length))
-                    return try resolveContainers()
-                case .number:
-                    let number = try read(UInt64.self)
-                    return try resolveContainers()
                 default:
                     return [:]
                 }
@@ -64,7 +57,6 @@ extension _AMF0Decoder {
             do {
                 var keyLength: UInt16 = try read(UInt16.self)
                 while(keyLength > 0) {
-
                     let keyAndObject = try readKeyAndObject(keyLength: keyLength)
                     nestedContainers[keyAndObject.key] = keyAndObject.object
 
@@ -74,15 +66,6 @@ extension _AMF0Decoder {
                 guard let objectEndMarker = AMF0Marker(rawValue: rawByte), objectEndMarker == .objectEnd else {
                     return [:]
                 }
-//                do {
-//                    if let potentialNextObject = try AMF0Marker(rawValue: readByte()), potentialNextObject == .object {
-//                        return nestedContainers.merging(nestedContainersForObject(), uniquingKeysWith: { (left, right) -> AMF0DecodingContainer in
-//                            return left
-//                        })
-//                    } else {
-//                        self.index -= 1
-//                    }
-//                }
             } catch {
                 fatalError("\(error)") // FIXME
             }
@@ -95,7 +78,6 @@ extension _AMF0Decoder {
             var nestedContainers: [String: AMF0DecodingContainer] = [:]
 
             do {
-
                 let count: UInt32 = try read(UInt32.self)
 
                 for _ in 0..<count {
@@ -104,6 +86,13 @@ extension _AMF0Decoder {
                     let keyAndObject = try readKeyAndObject(keyLength: keyLength)
                     nestedContainers[keyAndObject.key] = keyAndObject.object
                 }
+
+                let emptyLength = try read(UInt16.self)
+                let rawByte = try readByte()
+                guard emptyLength == 0, let objectEndMarker = AMF0Marker(rawValue: rawByte), objectEndMarker == .objectEnd else {
+                    return [:]
+                }
+
             } catch {
                 fatalError("\(error)") // FIXME
             }
@@ -117,6 +106,7 @@ extension _AMF0Decoder {
                 let context = DecodingError.Context(codingPath: self.codingPath, debugDescription: "Cannot load string")
                 throw DecodingError.dataCorrupted(context)
             }
+            print("key: \(key)")
 
             let unkeyedContainer = UnkeyedContainer(
                 data: data[self.index...],
@@ -125,8 +115,16 @@ extension _AMF0Decoder {
                 referenceTable: referenceTable
             )
 
+            let keyedContainer = KeyedContainer(
+                data: data[self.index...],
+                codingPath: codingPath,
+                userInfo: userInfo,
+                referenceTable: referenceTable
+            )
+
             let containers = unkeyedContainer.nestedContainers
-            if containers.isEmpty {
+            let keyedContainerNestedContainers = keyedContainer.nestedContainers
+            if containers.isEmpty && keyedContainerNestedContainers.isEmpty {
                 let singleValueContainer = SingleValueContainer(
                     data: data[self.index...],
                     codingPath: codingPath,
@@ -136,10 +134,15 @@ extension _AMF0Decoder {
                 let length = singleValueContainer.length ?? 0
                 self.index += length
                 return (key, singleValueContainer)
-            } else {
+            } else if !containers.isEmpty {
                 unkeyedContainer.codingPath += [AnyCodingKey(stringValue: key)!]
                 self.index = unkeyedContainer.index
                 return (key, unkeyedContainer)
+            } else {
+                keyedContainer.codingPath += [AnyCodingKey(stringValue: key)!]
+                self.index = keyedContainer.index
+                print("index: \(index)")
+                return (key, keyedContainer)
             }
 
         }
