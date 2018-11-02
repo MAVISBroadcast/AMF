@@ -104,7 +104,7 @@ class AMF0DecodingTests: XCTestCase {
         let transactionID = try? decoder.decode(Double.self, from: data[decoder.finishedIndex...])
         XCTAssertEqual(transactionID, 2.0)
         XCTAssertEqual(decoder.finishedIndex, 24)
-        let firstObject = try? decoder.decode(AMFCommand.self, from: data[decoder.finishedIndex...])
+        let firstObject = try? decoder.decode(AMFProperties.self, from: data[decoder.finishedIndex...])
         XCTAssertNil(firstObject)
         XCTAssertEqual(decoder.finishedIndex, 25)
     }
@@ -116,15 +116,17 @@ class AMF0DecodingTests: XCTestCase {
         XCTAssertEqual(value, "_result")
         let transactionID = try? decoder.decode(Double.self, from: data[decoder.finishedIndex...])
         XCTAssertEqual(transactionID, 1)
-        let firstObject = try? decoder.decode(AMFCommand.self, from: data[decoder.finishedIndex...])
+        let firstObject = try? decoder.decode(AMFProperties.self, from: data[decoder.finishedIndex...])
         XCTAssertEqual(firstObject?.fmsVer, "FMS/3,5,5,2004")
         XCTAssertEqual(firstObject?.capabilities, 31.0)
         XCTAssertEqual(firstObject?.mode, 1.0)
-        let secondObject = try? decoder.decode(AMFLevel.self, from: data[decoder.finishedIndex...])
+        let secondObject = try? decoder.decode(AMFInformation.self, from: data[decoder.finishedIndex...])
         XCTAssertEqual(secondObject?.clientId, 1584259571)
         XCTAssertEqual(secondObject?.code, "NetConnection.Connect.Success")
         XCTAssertEqual(secondObject?.level, "status")
         XCTAssertEqual(secondObject?.objectEncoding, 3.0)
+        XCTAssertEqual(secondObject?.description, "Connection succeeded.")
+        XCTAssertEqual(secondObject?.data.version, "3,5,5,2004")
     }
 
     static var allTests = [

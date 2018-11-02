@@ -106,7 +106,6 @@ extension _AMF0Decoder {
                 let context = DecodingError.Context(codingPath: self.codingPath, debugDescription: "Cannot load string")
                 throw DecodingError.dataCorrupted(context)
             }
-            print("key: \(key)")
 
             let unkeyedContainer = UnkeyedContainer(
                 data: data[self.index...],
@@ -141,10 +140,8 @@ extension _AMF0Decoder {
             } else {
                 keyedContainer.codingPath += [AnyCodingKey(stringValue: key)!]
                 self.index = keyedContainer.index
-                print("index: \(index)")
                 return (key, keyedContainer)
             }
-
         }
     }
 }
