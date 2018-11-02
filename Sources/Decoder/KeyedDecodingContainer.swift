@@ -92,7 +92,6 @@ extension _AMF0Decoder {
                 guard emptyLength == 0, let objectEndMarker = AMF0Marker(rawValue: rawByte), objectEndMarker == .objectEnd else {
                     return [:]
                 }
-
             } catch {
                 fatalError("\(error)") // FIXME
             }

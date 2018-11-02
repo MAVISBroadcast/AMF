@@ -92,7 +92,7 @@ extension AMF0DecodingContainer {
         }
         defer { self.index = nextIndex }
 
-        return self.data.subdata(in: self.index..<nextIndex)
+        return self.data[self.index..<nextIndex]
     }
 
     func read<T>(_ type: T.Type, endianess: Endianess = .big) throws -> T where T : FixedWidthInteger {

@@ -179,7 +179,7 @@ extension _AMF0Decoder.UnkeyedContainer {
         self.index = range.upperBound
         
         let container = _AMF0Decoder.SingleValueContainer(
-            data: data.subdata(in: range),
+            data: data[range],
             codingPath: codingPath,
             userInfo: userInfo,
             referenceTable: referenceTable
