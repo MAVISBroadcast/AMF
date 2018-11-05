@@ -7,6 +7,10 @@
 
 import Foundation
 
-class ReferenceTable {
+class DecodingReferenceTable {
     var decodingArray: [AMF0DecodingContainer] = []
+}
+
+class EncodingReferenceTable {
+    var encodingLookup: [Int: (index: Int, AMF0EncodingContainer)] = [:]
 }

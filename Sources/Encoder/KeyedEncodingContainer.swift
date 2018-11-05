@@ -2,7 +2,7 @@ import Foundation
 
 extension _AMF0Encoder {
     final class KeyedContainer<Key> where Key: CodingKey {
-        private var storage: [AnyCodingKey: _AMF0EncodingContainer] = [:]
+        private var storage: [AnyCodingKey: AMF0EncodingContainer] = [:]
 
         var codingPath: [CodingKey]
         var userInfo: [CodingUserInfoKey: Any]
@@ -58,7 +58,7 @@ extension _AMF0Encoder.KeyedContainer: KeyedEncodingContainerProtocol {
     }
 }
 
-extension _AMF0Encoder.KeyedContainer: _AMF0EncodingContainer {
+extension _AMF0Encoder.KeyedContainer: AMF0EncodingContainer {
     var data: Data {
         var data = Data()
 

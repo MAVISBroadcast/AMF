@@ -24,6 +24,7 @@ extension _AMF0Encoder {
 
 extension _AMF0Encoder.SingleValueContainer: SingleValueEncodingContainer {
     func encodeNil() throws {
+        data.append(AMF0Marker.null.rawValue)
     }
 
     func encode(_ value: Bool) throws {
@@ -126,4 +127,4 @@ extension _AMF0Encoder.SingleValueContainer: SingleValueEncodingContainer {
     }
 }
 
-extension _AMF0Encoder.SingleValueContainer: _AMF0EncodingContainer {}
+extension _AMF0Encoder.SingleValueContainer: AMF0EncodingContainer {}

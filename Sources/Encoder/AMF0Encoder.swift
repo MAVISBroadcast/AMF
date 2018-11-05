@@ -25,7 +25,7 @@ final class _AMF0Encoder {
 
     var userInfo: [CodingUserInfoKey: Any] = [:]
 
-    fileprivate var container: _AMF0EncodingContainer?
+    fileprivate var container: AMF0EncodingContainer?
 
     var data: Data {
         return container?.data ?? Data()
@@ -65,6 +65,6 @@ extension _AMF0Encoder: Encoder {
     }
 }
 
-protocol _AMF0EncodingContainer: class {
+protocol AMF0EncodingContainer: class {
     var data: Data { get }
 }

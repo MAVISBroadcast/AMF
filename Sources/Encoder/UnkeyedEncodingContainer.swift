@@ -2,7 +2,7 @@ import Foundation
 
 extension _AMF0Encoder {
     final class UnkeyedContainer {
-        private var storage: [_AMF0EncodingContainer] = []
+        private var storage: [AMF0EncodingContainer] = []
 
         var count: Int {
             return storage.count
@@ -60,7 +60,7 @@ extension _AMF0Encoder.UnkeyedContainer: UnkeyedEncodingContainer {
     }
 }
 
-extension _AMF0Encoder.UnkeyedContainer: _AMF0EncodingContainer {
+extension _AMF0Encoder.UnkeyedContainer: AMF0EncodingContainer {
     var data: Data {
         var data = Data()
 
