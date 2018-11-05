@@ -32,8 +32,8 @@ extension FixedWidthInteger {
             }
         }()
         return withUnsafePointer(to: &mutableValue) {
-            return $0.withMemoryRebound(to: UInt8.self, capacity: capacity) {
-                return Array(UnsafeBufferPointer(start: $0, count: capacity))
+            $0.withMemoryRebound(to: UInt8.self, capacity: capacity) {
+                Array(UnsafeBufferPointer(start: $0, count: capacity))
             }
         }
     }

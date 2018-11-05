@@ -1,13 +1,13 @@
-import XCTest
 @testable import AMF
+import XCTest
 
 class AMFRoundTripTests: XCTestCase {
     var encoder: AMF0Encoder!
     var decoder: AMF0Decoder!
-    
+
     override func setUp() {
-        self.encoder = AMF0Encoder()
-        self.decoder = AMF0Decoder()
+        encoder = AMF0Encoder()
+        decoder = AMF0Decoder()
     }
 
     func testRoundTrip() {
@@ -18,8 +18,8 @@ class AMFRoundTripTests: XCTestCase {
                             runways: [
                                 Airport.Runway(direction: "3/21",
                                                distance: 1829,
-                                               surface: .flexible)
-                            ])
+                                               surface: .flexible),
+        ])
         let encoded = try! encoder.encode(value)
         print("\(encoded as NSData)")
         let decoded = try! decoder.decode(Airport.self, from: encoded)
@@ -35,6 +35,6 @@ class AMFRoundTripTests: XCTestCase {
     }
 
     static var allTests = [
-        ("testRoundTrip", testRoundTrip)
+        ("testRoundTrip", testRoundTrip),
     ]
 }

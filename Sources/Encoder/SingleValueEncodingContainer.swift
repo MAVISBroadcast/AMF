@@ -6,8 +6,8 @@ extension _AMF0Encoder {
 
         fileprivate var canEncodeNewValue = true
         fileprivate func checkCanEncode(value: Any?) throws {
-            guard self.canEncodeNewValue else {
-                let context = EncodingError.Context(codingPath: self.codingPath, debugDescription: "Attempt to encode value through single value container when previously value already encoded.")
+            guard canEncodeNewValue else {
+                let context = EncodingError.Context(codingPath: codingPath, debugDescription: "Attempt to encode value through single value container when previously value already encoded.")
                 throw EncodingError.invalidValue(value as Any, context)
             }
         }
@@ -15,7 +15,7 @@ extension _AMF0Encoder {
         var codingPath: [CodingKey]
         var userInfo: [CodingUserInfoKey: Any]
 
-        init(codingPath: [CodingKey], userInfo: [CodingUserInfoKey : Any]) {
+        init(codingPath: [CodingKey], userInfo: [CodingUserInfoKey: Any]) {
             self.codingPath = codingPath
             self.userInfo = userInfo
         }
@@ -24,17 +24,16 @@ extension _AMF0Encoder {
 
 extension _AMF0Encoder.SingleValueContainer: SingleValueEncodingContainer {
     func encodeNil() throws {
-
     }
-    
+
     func encode(_ value: Bool) throws {
         data.append(AMF0Marker.boolean.rawValue)
         data.append(value ? 0x01 : 0x00)
     }
-    
+
     func encode(_ value: String) throws {
         guard let stringData = value.data(using: .utf8) else {
-            let context = EncodingError.Context(codingPath: self.codingPath, debugDescription: "Cannot encode string using UTF-8 encoding.")
+            let context = EncodingError.Context(codingPath: codingPath, debugDescription: "Cannot encode string using UTF-8 encoding.")
             throw EncodingError.invalidValue(value, context)
         }
         let length = stringData.count
@@ -47,11 +46,11 @@ extension _AMF0Encoder.SingleValueContainer: SingleValueEncodingContainer {
             data.append(contentsOf: uInt32Length.bytes())
             data.append(contentsOf: stringData)
         } else {
-            let context = EncodingError.Context(codingPath: self.codingPath, debugDescription: "Cannot encode string with length \(length).")
+            let context = EncodingError.Context(codingPath: codingPath, debugDescription: "Cannot encode string with length \(length).")
             throw EncodingError.invalidValue(value, context)
         }
     }
-    
+
     func encode(_ value: Double) throws {
         data.append(AMF0Marker.number.rawValue)
         data.append(contentsOf: value.bitPattern.bytes())
@@ -60,48 +59,48 @@ extension _AMF0Encoder.SingleValueContainer: SingleValueEncodingContainer {
     func encode(_ value: Float) throws {
         try encode(Double(value))
     }
-    
+
     func encode(_ value: Int) throws {
         try encode(Double(value))
     }
-    
+
     func encode(_ value: Int8) throws {
         try encode(Double(value))
     }
-    
+
     func encode(_ value: Int16) throws {
         try encode(Double(value))
     }
-    
+
     func encode(_ value: Int32) throws {
         try encode(Double(value))
     }
-    
+
     func encode(_ value: Int64) throws {
         try encode(Double(value))
     }
-    
+
     func encode(_ value: UInt) throws {
         try encode(Double(value))
     }
-    
+
     func encode(_ value: UInt8) throws {
         try encode(Double(value))
     }
-    
+
     func encode(_ value: UInt16) throws {
         try encode(Double(value))
     }
-    
+
     func encode(_ value: UInt32) throws {
         try encode(Double(value))
     }
-    
+
     func encode(_ value: UInt64) throws {
         try encode(Double(value))
     }
-    
-    func encode<T>(_ value: T) throws where T : Encodable {
+
+    func encode<T>(_ value: T) throws where T: Encodable {
         try checkCanEncode(value: value)
         defer { canEncodeNewValue = false }
 

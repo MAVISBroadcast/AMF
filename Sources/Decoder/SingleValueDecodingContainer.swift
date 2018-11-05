@@ -8,11 +8,11 @@ extension _AMF0Decoder {
         var index: Data.Index
         var referenceTable: ReferenceTable
 
-        init(data: Data, codingPath: [CodingKey], userInfo: [CodingUserInfoKey : Any], referenceTable: ReferenceTable) {
+        init(data: Data, codingPath: [CodingKey], userInfo: [CodingUserInfoKey: Any], referenceTable: ReferenceTable) {
             self.data = data
             self.codingPath = codingPath
             self.userInfo = userInfo
-            self.index = self.data.startIndex
+            index = self.data.startIndex
             self.referenceTable = referenceTable
         }
 
@@ -44,7 +44,6 @@ extension _AMF0Decoder {
 }
 
 extension _AMF0Decoder.SingleValueContainer: SingleValueDecodingContainer {
-
     func decodeNil() -> Bool {
         do {
             let format = try readByte()
@@ -58,27 +57,27 @@ extension _AMF0Decoder.SingleValueContainer: SingleValueDecodingContainer {
             return false
         }
     }
-    
-    func decode(_ type: Bool.Type) throws -> Bool {
+
+    func decode(_: Bool.Type) throws -> Bool {
         let format = try readByte()
         switch format {
         case AMF0Marker.boolean.rawValue:
             let booleanValue = try readByte()
             return booleanValue > 0x00
         default:
-            let context = DecodingError.Context(codingPath: self.codingPath, debugDescription: "Invalid format: \(String(describing: AMF0Marker(rawValue: format)))")
+            let context = DecodingError.Context(codingPath: codingPath, debugDescription: "Invalid format: \(String(describing: AMF0Marker(rawValue: format)))")
             throw DecodingError.typeMismatch(Double.self, context)
         }
     }
-    
-    func decode(_ type: String.Type) throws -> String {
+
+    func decode(_: String.Type) throws -> String {
         let format = try readByte()
         switch format {
         case AMF0Marker.string.rawValue:
             let length: UInt16 = try read(UInt16.self)
             let utfData = try read(Int(length))
             guard let string = String(data: utfData, encoding: .utf8) else {
-                let context = DecodingError.Context(codingPath: self.codingPath, debugDescription: "Cannot load string")
+                let context = DecodingError.Context(codingPath: codingPath, debugDescription: "Cannot load string")
                 throw DecodingError.dataCorrupted(context)
             }
             return string
@@ -86,37 +85,37 @@ extension _AMF0Decoder.SingleValueContainer: SingleValueDecodingContainer {
             let length: UInt32 = try read(UInt32.self)
             let utfData = try read(Int(length))
             guard let string = String(data: utfData, encoding: .utf8) else {
-                let context = DecodingError.Context(codingPath: self.codingPath, debugDescription: "Cannot load string")
+                let context = DecodingError.Context(codingPath: codingPath, debugDescription: "Cannot load string")
                 throw DecodingError.dataCorrupted(context)
             }
             return string
         default:
-            let context = DecodingError.Context(codingPath: self.codingPath, debugDescription: "Invalid format: \(String(describing: AMF0Marker(rawValue: format)))")
+            let context = DecodingError.Context(codingPath: codingPath, debugDescription: "Invalid format: \(String(describing: AMF0Marker(rawValue: format)))")
             throw DecodingError.typeMismatch(Double.self, context)
         }
     }
-    
-    func decode(_ type: Double.Type) throws -> Double {
+
+    func decode(_: Double.Type) throws -> Double {
         let format = try readByte()
         switch format {
         case AMF0Marker.number.rawValue:
             return try Double(bitPattern: read(UInt64.self))
         case AMF0Marker.date.rawValue:
             let date = try Double(bitPattern: read(UInt64.self))
-            let difference = Double(978307200) // Difference between 01/01/1970 and 01/01/2001
+            let difference = Double(978_307_200) // Difference between 01/01/1970 and 01/01/2001
             return date - difference
         default:
-            let context = DecodingError.Context(codingPath: self.codingPath, debugDescription: "Invalid format: \(String(describing: AMF0Marker(rawValue: format)))")
+            let context = DecodingError.Context(codingPath: codingPath, debugDescription: "Invalid format: \(String(describing: AMF0Marker(rawValue: format)))")
             throw DecodingError.typeMismatch(Double.self, context)
         }
     }
-    
+
     func decode(_ type: Float.Type) throws -> Float {
         let double = try decode(Double.self)
         let exactValue = type.init(exactly: double)
         return try unoptional(optional: exactValue)
     }
-    
+
     func decode(_ type: Int.Type) throws -> Int {
         let double = try decode(Double.self)
         let exactValue = type.init(exactly: double)
@@ -146,31 +145,31 @@ extension _AMF0Decoder.SingleValueContainer: SingleValueDecodingContainer {
         let exactValue = type.init(exactly: double)
         return try unoptional(optional: exactValue)
     }
-    
+
     func decode(_ type: UInt.Type) throws -> UInt {
         let double = try decode(Double.self)
         let exactValue = type.init(exactly: double)
         return try unoptional(optional: exactValue)
     }
-    
+
     func decode(_ type: UInt8.Type) throws -> UInt8 {
         let double = try decode(Double.self)
         let exactValue = type.init(exactly: double)
         return try unoptional(optional: exactValue)
     }
-    
+
     func decode(_ type: UInt16.Type) throws -> UInt16 {
         let double = try decode(Double.self)
         let exactValue = type.init(exactly: double)
         return try unoptional(optional: exactValue)
     }
-    
+
     func decode(_ type: UInt32.Type) throws -> UInt32 {
         let double = try decode(Double.self)
         let exactValue = type.init(exactly: double)
         return try unoptional(optional: exactValue)
     }
-    
+
     func decode(_ type: UInt64.Type) throws -> UInt64 {
         let double = try decode(Double.self)
         let exactValue = type.init(exactly: double)
@@ -182,16 +181,16 @@ extension _AMF0Decoder.SingleValueContainer: SingleValueDecodingContainer {
             return value
         } else {
             let type = Swift.type(of: optional)
-            let context = DecodingError.Context(codingPath: self.codingPath, debugDescription: "Could not represent Double number in: \(type)")
+            let context = DecodingError.Context(codingPath: codingPath, debugDescription: "Could not represent Double number in: \(type)")
             throw DecodingError.typeMismatch(Double.self, context)
         }
     }
-  
-    func decode<T>(_ type: T.Type) throws -> T where T : Decodable {
-        let decoder = _AMF0Decoder(data: self.data, referenceTable: self.referenceTable)
+
+    func decode<T>(_: T.Type) throws -> T where T: Decodable {
+        let decoder = _AMF0Decoder(data: data, referenceTable: referenceTable)
         let value = try T(from: decoder)
         if let nextIndex = decoder.container?.index {
-            self.index = nextIndex
+            index = nextIndex
         }
 
         return value

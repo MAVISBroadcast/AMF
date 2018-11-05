@@ -1,18 +1,18 @@
 struct AnyCodingKey: CodingKey, Equatable {
     var stringValue: String
     var intValue: Int?
-    
+
     init?(stringValue: String) {
         self.stringValue = stringValue
-        self.intValue = nil
+        intValue = nil
     }
-    
+
     init?(intValue: Int) {
-        self.stringValue = "\(intValue)"
+        stringValue = "\(intValue)"
         self.intValue = intValue
     }
-    
-    init<Key>(_ base: Key) where Key : CodingKey {
+
+    init<Key>(_ base: Key) where Key: CodingKey {
         if let intValue = base.intValue {
             self.init(intValue: intValue)!
         } else {
@@ -23,6 +23,6 @@ struct AnyCodingKey: CodingKey, Equatable {
 
 extension AnyCodingKey: Hashable {
     var hashValue: Int {
-        return self.intValue?.hashValue ?? self.stringValue.hashValue
+        return intValue?.hashValue ?? stringValue.hashValue
     }
 }

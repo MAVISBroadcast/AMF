@@ -27,6 +27,6 @@ let package = Package(
             name: "AMFTests",
             dependencies: ["AMF"],
             path: "Tests"
-        )
+        ),
     ]
 )

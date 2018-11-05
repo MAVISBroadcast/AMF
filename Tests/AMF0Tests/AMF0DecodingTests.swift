@@ -1,11 +1,11 @@
-import XCTest
 @testable import AMF
+import XCTest
 
 class AMF0DecodingTests: XCTestCase {
     var decoder: AMF0Decoder!
-    
+
     override func setUp() {
-        self.decoder = AMF0Decoder()
+        decoder = AMF0Decoder()
     }
 
     func testDecodeTrueBoolean() {
@@ -42,25 +42,25 @@ class AMF0DecodingTests: XCTestCase {
     }
 
     func testDictionary() {
-        let data = Data(bytes: [AMF0Marker.object.rawValue, /*string length: 1*/ 0x00, 0x01, /* a */ 0x61, AMF0Marker.string.rawValue, /*string length: 1*/ 0x00, 0x01, /* a */ 0x61, /* empty UTF-8 */ 0x00, 0x00, AMF0Marker.objectEnd.rawValue])
+        let data = Data(bytes: [AMF0Marker.object.rawValue, /* string length: 1 */ 0x00, 0x01, /* a */ 0x61, AMF0Marker.string.rawValue, /* string length: 1 */ 0x00, 0x01, /* a */ 0x61, /* empty UTF-8 */ 0x00, 0x00, AMF0Marker.objectEnd.rawValue])
         let value = try! decoder.decode([String: String].self, from: data)
         XCTAssertEqual(value, ["a": "a"])
     }
 
     func testEmptyArray() {
-        let data = Data(bytes: [AMF0Marker.strictArray.rawValue, /*count: 0*/ 0x00, 0x00, 0x00, 0x00])
+        let data = Data(bytes: [AMF0Marker.strictArray.rawValue, /* count: 0 */ 0x00, 0x00, 0x00, 0x00])
         let value = try! decoder.decode([String].self, from: data)
         XCTAssertEqual(value, [])
     }
 
     func testArray() {
-        let data = Data(bytes: [AMF0Marker.strictArray.rawValue, /*count: 1*/ 0x00, 0x00, 0x00, 0x01, AMF0Marker.string.rawValue, /* big endian length of 5*/ 0x00, 0x05, /* UTF8 chars */ 0x68, 0x65, 0x6C, 0x6C, 0x6F])
+        let data = Data(bytes: [AMF0Marker.strictArray.rawValue, /* count: 1 */ 0x00, 0x00, 0x00, 0x01, AMF0Marker.string.rawValue, /* big endian length of 5*/ 0x00, 0x05, /* UTF8 chars */ 0x68, 0x65, 0x6C, 0x6C, 0x6F])
         let value = try! decoder.decode([String].self, from: data)
         XCTAssertEqual(value, ["hello"])
     }
 
     func testDictionaryWithArrayInIt() {
-        let data = Data(bytes: [AMF0Marker.object.rawValue, /*string length: 1*/ 0x00, 0x01, /* a */ 0x61, AMF0Marker.strictArray.rawValue, /*count: 1*/ 0x00, 0x00, 0x00, 0x01, AMF0Marker.string.rawValue, /* big endian length of 5*/ 0x00, 0x05, /* UTF8 chars */ 0x68, 0x65, 0x6C, 0x6C, 0x6F, /* empty UTF-8 */ 0x00, 0x00, AMF0Marker.objectEnd.rawValue])
+        let data = Data(bytes: [AMF0Marker.object.rawValue, /* string length: 1 */ 0x00, 0x01, /* a */ 0x61, AMF0Marker.strictArray.rawValue, /* count: 1 */ 0x00, 0x00, 0x00, 0x01, AMF0Marker.string.rawValue, /* big endian length of 5*/ 0x00, 0x05, /* UTF8 chars */ 0x68, 0x65, 0x6C, 0x6C, 0x6F, /* empty UTF-8 */ 0x00, 0x00, AMF0Marker.objectEnd.rawValue])
         let value = try! decoder.decode([String: [String]].self, from: data)
         XCTAssertEqual(value, ["a": ["hello"]])
     }
@@ -72,7 +72,7 @@ class AMF0DecodingTests: XCTestCase {
     }
 
     func testECMAArray() {
-        let data = Data(bytes: [AMF0Marker.ecmaArray.rawValue, /*count: 1*/ 0x00, 0x00, 0x00, 0x01, /*string length: 1*/ 0x00, 0x01, /* a */ 0x61, AMF0Marker.string.rawValue, /*string length: 1*/ 0x00, 0x01, /* a */ 0x61, /* empty UTF-8 */ 0x00, 0x00, AMF0Marker.objectEnd.rawValue])
+        let data = Data(bytes: [AMF0Marker.ecmaArray.rawValue, /* count: 1 */ 0x00, 0x00, 0x00, 0x01, /* string length: 1 */ 0x00, 0x01, /* a */ 0x61, AMF0Marker.string.rawValue, /* string length: 1 */ 0x00, 0x01, /* a */ 0x61, /* empty UTF-8 */ 0x00, 0x00, AMF0Marker.objectEnd.rawValue])
         let value = try! decoder.decode([String: String].self, from: data)
         XCTAssertEqual(value, ["a": "a"])
     }
@@ -86,11 +86,11 @@ class AMF0DecodingTests: XCTestCase {
     func testDate() {
         let data = Data(bytes: [AMF0Marker.date.rawValue, 0x41, 0xD6, 0xF6, 0x78, 0x1F, 0x00, 0x00, 0x00, 0x00, 0x00])
         let value = try! decoder.decode(Date.self, from: data)
-        XCTAssertEqual(value.timeIntervalSince1970, 1541005436)
+        XCTAssertEqual(value.timeIntervalSince1970, 1_541_005_436)
     }
 
     func testReference() {
-        let data = Data(bytes: [AMF0Marker.strictArray.rawValue, /*count: 1*/ 0x00, 0x00, 0x00, 0x02, AMF0Marker.object.rawValue, /*string length: 1*/ 0x00, 0x01, /* a */ 0x61, AMF0Marker.strictArray.rawValue, /*count: 1*/ 0x00, 0x00, 0x00, 0x01, AMF0Marker.string.rawValue, /* big endian length of 5*/ 0x00, 0x05, /* UTF8 chars */ 0x68, 0x65, 0x6C, 0x6C, 0x6F, /* empty UTF-8 */ 0x00, 0x00, AMF0Marker.objectEnd.rawValue, AMF0Marker.reference.rawValue, /* second object as reference */ 0x00, 0x01])
+        let data = Data(bytes: [AMF0Marker.strictArray.rawValue, /* count: 1 */ 0x00, 0x00, 0x00, 0x02, AMF0Marker.object.rawValue, /* string length: 1 */ 0x00, 0x01, /* a */ 0x61, AMF0Marker.strictArray.rawValue, /* count: 1 */ 0x00, 0x00, 0x00, 0x01, AMF0Marker.string.rawValue, /* big endian length of 5*/ 0x00, 0x05, /* UTF8 chars */ 0x68, 0x65, 0x6C, 0x6C, 0x6F, /* empty UTF-8 */ 0x00, 0x00, AMF0Marker.objectEnd.rawValue, AMF0Marker.reference.rawValue, /* second object as reference */ 0x00, 0x01])
         let value = try! decoder.decode([[String: [String]]].self, from: data)
         XCTAssertEqual(value, [["a": ["hello"]], ["a": ["hello"]]])
     }
@@ -121,7 +121,7 @@ class AMF0DecodingTests: XCTestCase {
         XCTAssertEqual(firstObject?.capabilities, 31.0)
         XCTAssertEqual(firstObject?.mode, 1.0)
         let secondObject = try? decoder.decode(AMFInformation.self, from: data[decoder.finishedIndex...])
-        XCTAssertEqual(secondObject?.clientId, 1584259571)
+        XCTAssertEqual(secondObject?.clientId, 1_584_259_571)
         XCTAssertEqual(secondObject?.code, "NetConnection.Connect.Success")
         XCTAssertEqual(secondObject?.level, "status")
         XCTAssertEqual(secondObject?.objectEncoding, 3.0)
@@ -133,6 +133,6 @@ class AMF0DecodingTests: XCTestCase {
         ("testDecodeTrueBoolean", testDecodeTrueBoolean),
         ("testDecodeFalseBoolean", testDecodeFalseBoolean),
         ("testDecodeDouble", testDecodeDouble),
-        ("testDecodeString", testDecodeString)
+        ("testDecodeString", testDecodeString),
     ]
 }
