@@ -10,7 +10,7 @@ struct Airport: Codable, Equatable {
         }
         
         let direction: String
-        let distance: Double
+        let distance: Int
         let surface: Surface
     }
     

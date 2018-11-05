@@ -58,47 +58,47 @@ extension _AMF0Encoder.SingleValueContainer: SingleValueEncodingContainer {
     }
 
     func encode(_ value: Float) throws {
-        
+        try encode(Double(value))
     }
     
     func encode(_ value: Int) throws {
-
+        try encode(Double(value))
     }
     
     func encode(_ value: Int8) throws {
-
+        try encode(Double(value))
     }
     
     func encode(_ value: Int16) throws {
-
+        try encode(Double(value))
     }
     
     func encode(_ value: Int32) throws {
-
+        try encode(Double(value))
     }
     
     func encode(_ value: Int64) throws {
-
+        try encode(Double(value))
     }
     
     func encode(_ value: UInt) throws {
-
+        try encode(Double(value))
     }
     
     func encode(_ value: UInt8) throws {
-
+        try encode(Double(value))
     }
     
     func encode(_ value: UInt16) throws {
-
+        try encode(Double(value))
     }
     
     func encode(_ value: UInt32) throws {
-
+        try encode(Double(value))
     }
     
     func encode(_ value: UInt64) throws {
-
+        try encode(Double(value))
     }
     
     func encode<T>(_ value: T) throws where T : Encodable {

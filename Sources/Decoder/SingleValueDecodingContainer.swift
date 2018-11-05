@@ -112,47 +112,79 @@ extension _AMF0Decoder.SingleValueContainer: SingleValueDecodingContainer {
     }
     
     func decode(_ type: Float.Type) throws -> Float {
-        return 0
+        let double = try decode(Double.self)
+        let exactValue = type.init(exactly: double)
+        return try unoptional(optional: exactValue)
     }
     
     func decode(_ type: Int.Type) throws -> Int {
-        return 0
+        let double = try decode(Double.self)
+        let exactValue = type.init(exactly: double)
+        return try unoptional(optional: exactValue)
     }
 
     func decode(_ type: Int8.Type) throws -> Int8 {
-        return 0
+        let double = try decode(Double.self)
+        let exactValue = type.init(exactly: double)
+        return try unoptional(optional: exactValue)
     }
 
     func decode(_ type: Int16.Type) throws -> Int16 {
-        return 0
+        let double = try decode(Double.self)
+        let exactValue = type.init(exactly: double)
+        return try unoptional(optional: exactValue)
     }
 
     func decode(_ type: Int32.Type) throws -> Int32 {
-        return 0
+        let double = try decode(Double.self)
+        let exactValue = type.init(exactly: double)
+        return try unoptional(optional: exactValue)
     }
 
     func decode(_ type: Int64.Type) throws -> Int64 {
-        return 0
+        let double = try decode(Double.self)
+        let exactValue = type.init(exactly: double)
+        return try unoptional(optional: exactValue)
     }
     
     func decode(_ type: UInt.Type) throws -> UInt {
-        return 0
+        let double = try decode(Double.self)
+        let exactValue = type.init(exactly: double)
+        return try unoptional(optional: exactValue)
     }
     
     func decode(_ type: UInt8.Type) throws -> UInt8 {
-        return 0
+        let double = try decode(Double.self)
+        let exactValue = type.init(exactly: double)
+        return try unoptional(optional: exactValue)
     }
     
     func decode(_ type: UInt16.Type) throws -> UInt16 {
-        return 0
+        let double = try decode(Double.self)
+        let exactValue = type.init(exactly: double)
+        return try unoptional(optional: exactValue)
     }
     
     func decode(_ type: UInt32.Type) throws -> UInt32 {
-        return 0
+        let double = try decode(Double.self)
+        let exactValue = type.init(exactly: double)
+        return try unoptional(optional: exactValue)
     }
     
     func decode(_ type: UInt64.Type) throws -> UInt64 {
-        return 0
+        let double = try decode(Double.self)
+        let exactValue = type.init(exactly: double)
+        return try unoptional(optional: exactValue)
+    }
+
+    private func unoptional<T>(optional: T?) throws -> T {
+        if let value = optional {
+            return value
+        } else {
+            let type = Swift.type(of: optional)
+            let context = DecodingError.Context(codingPath: self.codingPath, debugDescription: "Could not represent Double number in: \(type)")
+            throw DecodingError.typeMismatch(Double.self, context)
+        }
     }
   
     func decode<T>(_ type: T.Type) throws -> T where T : Decodable {
