@@ -50,6 +50,24 @@ class AMFEncodingTests: XCTestCase {
         XCTAssertEqual(value, Data(bytes: [AMF0Marker.strictArray.rawValue, 0x00, 0x00, 0x00, 0x04, AMF0Marker.string.rawValue, 0x00, 0x05, 0x48, 0x65, 0x6C, 0x6C, 0x6F, AMF0Marker.string.rawValue, 0x00, 0x01, 0x2C, AMF0Marker.string.rawValue, 0x00, 0x01, 0x20, AMF0Marker.string.rawValue, 0x00, 0x05, 0x57, 0x6F, 0x72, 0x6C, 0x64]))
     }
 
+    func testEncodeECMAArray() {
+        let dictionary = ["a" : "1", "b": "2"]
+        let value = try! encoder.encode(dictionary)
+        XCTAssertEqual(value[0], AMF0Marker.ecmaArray.rawValue)
+    }
+
+    func testEncodeECMAArrayDouble() {
+        let dictionary = ["a" : 1.0, "b": 1.0]
+        let value = try! encoder.encode(dictionary)
+        XCTAssertEqual(value[0], AMF0Marker.ecmaArray.rawValue)
+    }
+
+    func testEncodeNil() {
+        let nilString: String? = nil
+        let value = try! encoder.encode(nilString)
+        XCTAssertEqual(value, Data(bytes: [AMF0Marker.null.rawValue]))
+    }
+
     static var allTests = [
         ("testEncode", testBoolEncode),
     ]

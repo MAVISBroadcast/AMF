@@ -18,11 +18,7 @@ struct AMFInformation: Codable {
     let description: String
     let clientId: Double
     let objectEncoding: Double
-    let data: AMFInformationData
-}
-
-struct AMFInformationData: Codable {
-    let version: String
+    let data: [String: String]
 }
 
 struct ObjectWithDate: Codable {

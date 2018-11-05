@@ -126,7 +126,7 @@ class AMF0DecodingTests: XCTestCase {
         XCTAssertEqual(secondObject?.level, "status")
         XCTAssertEqual(secondObject?.objectEncoding, 3.0)
         XCTAssertEqual(secondObject?.description, "Connection succeeded.")
-        XCTAssertEqual(secondObject?.data.version, "3,5,5,2004")
+        XCTAssertEqual(secondObject?.data["version"], "3,5,5,2004")
     }
 
     static var allTests = [

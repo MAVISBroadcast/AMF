@@ -62,7 +62,12 @@ extension _AMF0Encoder.KeyedContainer: AMF0EncodingContainer {
     var data: Data {
         var data = Data()
 
-        data.append(AMF0Marker.object.rawValue)
+        if let encodeAsECMAArray = userInfo[AMF0Encoder.EncodeAsECMAArray] as? Bool, encodeAsECMAArray {
+            data.append(AMF0Marker.ecmaArray.rawValue)
+            data.append(contentsOf: UInt32(storage.count).bytes())
+        } else {
+            data.append(AMF0Marker.object.rawValue)
+        }
 
         for (key, container) in storage {
             let stringKey = key.stringValue

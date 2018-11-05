@@ -4,6 +4,8 @@ import Foundation
 
  */
 public class AMF0Encoder {
+    static let EncodeAsECMAArray: CodingUserInfoKey = CodingUserInfoKey(rawValue: "EncodeAsECMAArray")!
+
     func encode(_ value: Encodable) throws -> Data {
         let encoder = _AMF0Encoder()
 
@@ -12,6 +14,12 @@ public class AMF0Encoder {
             try Box<Data>(data).encode(to: encoder)
         case let date as Date:
             try Box<Date>(date).encode(to: encoder)
+        case let dictionary as [String: String]:
+            encoder.userInfo[AMF0Encoder.EncodeAsECMAArray] = true
+            try Box<[String: String]>(dictionary).encode(to: encoder)
+        case let dictionary as [String: Double]:
+            encoder.userInfo[AMF0Encoder.EncodeAsECMAArray] = true
+            try Box<[String: Double]>(dictionary).encode(to: encoder)
         default:
             try value.encode(to: encoder)
         }

@@ -42,3 +42,17 @@ extension Box where Value == Date {
         try container.encode(value)
     }
 }
+
+extension Box where Value == Dictionary<String, String> {
+
+    func encode(to encoder: Encoder) throws {
+        try value.encode(to: encoder)
+    }
+}
+
+extension Box where Value == Dictionary<String, Double> {
+
+    func encode(to encoder: Encoder) throws {
+        try value.encode(to: encoder)
+    }
+}
