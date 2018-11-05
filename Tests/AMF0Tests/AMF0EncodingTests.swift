@@ -44,6 +44,13 @@ class AMFEncodingTests: XCTestCase {
         XCTAssertEqual(value, Data(bytes: [AMF0Marker.object.rawValue, 0x00, 0x04, 0x64, 0x61, 0x74, 0x65, AMF0Marker.date.rawValue, 0x42, 0x76, 0x6D, 0x4D, 0x63, 0x4E, 0x00, 0x00, /* time zone */ 0x00, 0x00, 0x00, 0x00, 0x09]))
     }
 
+    func testEncodeArray() {
+        let stringArray = ["Hello", ",", " ", "World"]
+        let value = try! encoder.encode(stringArray)
+        XCTAssertEqual(value, Data(bytes: [AMF0Marker.strictArray.rawValue, 0x00, 0x04, AMF0Marker.string.rawValue, 0x00, 0x05, 0x48, 0x65, 0x6C, 0x6C, 0x6F, AMF0Marker.string.rawValue, 0x00, 0x01, 0x2C, AMF0Marker.string.rawValue, 0x00, 0x01, 0x20, AMF0Marker.string.rawValue, 0x00, 0x05, 0x57, 0x6F, 0x72, 0x6C, 0x64]))
+
+    }
+
     static var allTests = [
         ("testEncode", testBoolEncode)
     ]
