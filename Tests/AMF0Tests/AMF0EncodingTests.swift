@@ -33,16 +33,16 @@ class AMFEncodingTests: XCTestCase {
         XCTAssertEqual(value, Data(bytes: [AMF0Marker.string.rawValue, 0x00, 0x00]))
     }
 
-//    func testDateEncode() {
-//        let value = try! encoder.encode(Date(timeIntervalSince1970: 1541169100))
-//        XCTAssertEqual(value, Data(bytes: [AMF0Marker.date.rawValue, 0x41, 0xD6, 0xF7, 0x17, 0xF3, 0x00, 0x00, 0x00, /* time zone */ 0x00, 0x00]))
-//    }
-//
-//    func testDateObjectEncode() {
-//        let date = ObjectWithDate(date: Date(timeIntervalSince1970: 1541169100))
-//        let value = try! encoder.encode(date)
-//        XCTAssertEqual(value, Data(bytes: [AMF0Marker.date.rawValue, 0x41, 0xD6, 0xF7, 0x17, 0xF3, 0x00, 0x00, 0x00, /* time zone */ 0x00, 0x00]))
-//    }
+    func testDateEncode() {
+        let value = try! encoder.encode(Date(timeIntervalSince1970: 1541169100))
+        XCTAssertEqual(value, Data(bytes: [AMF0Marker.date.rawValue, 0x42, 0x76, 0x6D, 0x4D, 0x63, 0x4E, 0x00, 0x00, /* time zone */ 0x00, 0x00]))
+    }
+
+    func testDateObjectEncode() {
+        let date = ObjectWithDate(date: Date(timeIntervalSince1970: 1541169100))
+        let value = try! encoder.encode(date)
+        XCTAssertEqual(value, Data(bytes: [AMF0Marker.object.rawValue, 0x00, 0x04, 0x64, 0x61, 0x74, 0x65, AMF0Marker.date.rawValue, 0x42, 0x76, 0x6D, 0x4D, 0x63, 0x4E, 0x00, 0x00, /* time zone */ 0x00, 0x00, 0x00, 0x00, 0x09]))
+    }
 
     static var allTests = [
         ("testEncode", testBoolEncode)

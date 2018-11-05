@@ -5,10 +5,17 @@ import Foundation
  */
 public class AMF0Encoder {
     func encode(_ value: Encodable) throws -> Data {
-        let type = Swift.type(of: value)
-        print("type: \(type)")
         let encoder = _AMF0Encoder()
-        try value.encode(to: encoder)
+
+        switch value {
+        case let data as Data:
+            try Box<Data>(data).encode(to: encoder)
+        case let date as Date:
+            try Box<Date>(date).encode(to: encoder)
+        default:
+            try value.encode(to: encoder)
+        }
+
         return encoder.data
     }
 }

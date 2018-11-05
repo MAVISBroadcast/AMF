@@ -105,9 +105,25 @@ extension _AMF0Encoder.SingleValueContainer: SingleValueEncodingContainer {
         try checkCanEncode(value: value)
         defer { canEncodeNewValue = false }
 
-        let encoder = _AMF0Encoder()
-        try value.encode(to: encoder)
-        data.append(encoder.data)
+        switch value {
+        case let data as Data:
+            try encode(data)
+        case let date as Date:
+            try encode(date)
+        default:
+            let encoder = _AMF0Encoder()
+            try value.encode(to: encoder)
+            data.append(encoder.data)
+        }
+    }
+
+    func encode(_ value: Date) throws {
+        try checkCanEncode(value: value)
+        defer { self.canEncodeNewValue = false }
+
+        data.append(AMF0Marker.date.rawValue)
+        data.append(contentsOf: (value.timeIntervalSince1970 * 1000).bitPattern.bytes())
+        data.append(contentsOf: UInt16(0).bytes())
     }
 }
 
