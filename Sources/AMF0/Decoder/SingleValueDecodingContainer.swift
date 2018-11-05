@@ -31,6 +31,8 @@ extension _AMF0Decoder {
                         return 1 + 8 // marker + IEEE 754 DOUBLE
                     case AMF0Marker.date:
                         return 1 + 8 + 2 // marker + IEEE 754 DOUBLE + unused UInt16 time zone int
+                    case AMF0Marker.null, AMF0Marker.undefined:
+                        return 1
                     default:
                         return nil
                     }

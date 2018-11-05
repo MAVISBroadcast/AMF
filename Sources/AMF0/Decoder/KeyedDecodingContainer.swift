@@ -13,6 +13,17 @@ extension _AMF0Decoder {
                 }
 
                 switch objectMarker {
+                case .typedObject:
+                    let classNameLength: UInt16 = try read(UInt16.self)
+                    let classNameUTFData = try read(Int(classNameLength))
+
+                    guard let className = String(data: classNameUTFData, encoding: .utf8) else {
+                        let context = DecodingError.Context(codingPath: codingPath, debugDescription: "Cannot load string")
+                        throw DecodingError.dataCorrupted(context)
+                    }
+                    
+                    self.className = className
+                    fallthrough
                 case .object:
                     return nestedContainersForObject()
                 case .ecmaArray:
@@ -30,6 +41,7 @@ extension _AMF0Decoder {
         var codingPath: [CodingKey]
         var userInfo: [CodingUserInfoKey: Any]
         var referenceTable: DecodingReferenceTable
+        var className: String?
 
         func nestedCodingPath(forKey key: CodingKey) -> [CodingKey] {
             return codingPath + [key]
