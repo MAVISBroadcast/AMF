@@ -134,5 +134,18 @@ class AMF0DecodingTests: XCTestCase {
         ("testDecodeFalseBoolean", testDecodeFalseBoolean),
         ("testDecodeDouble", testDecodeDouble),
         ("testDecodeString", testDecodeString),
+        ("testDecodeEmoji", testDecodeEmoji),
+        ("testDecodeEmptyString", testDecodeEmptyString),
+        ("testDictionary", testDictionary),
+        ("testEmptyArray", testEmptyArray),
+        ("testArray", testArray),
+        ("testDictionaryWithArrayInIt", testDictionaryWithArrayInIt),
+        ("testDecodeNil", testDecodeNil),
+        ("testECMAArray", testECMAArray),
+        ("testLongString", testLongString),
+        ("testDate", testDate),
+        ("testReference", testReference),
+        ("testAMFObject", testAMFObject),
+        ("testLargerAMFObject", testLargerAMFObject),
     ]
 }

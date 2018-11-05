@@ -79,8 +79,8 @@ class AMFRoundTripTests: XCTestCase {
         }()
     }
 
-
     static var allTests = [
         ("testRoundTrip", testRoundTrip),
+        ("testLargerAMFObject", testLargerAMFObject),
     ]
 }

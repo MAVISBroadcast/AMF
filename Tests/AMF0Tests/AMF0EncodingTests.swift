@@ -69,7 +69,17 @@ class AMFEncodingTests: XCTestCase {
     }
 
     static var allTests = [
-        ("testEncode", testBoolEncode),
+        ("testBoolEncode", testBoolEncode),
+        ("testDoubleEncode", testDoubleEncode),
+        ("testStringEncode", testStringEncode),
+        ("testLongStringEncode", testLongStringEncode),
+        ("testEmptyStringEncode", testEmptyStringEncode),
+        ("testDateEncode", testDateEncode),
+        ("testDateObjectEncode", testDateObjectEncode),
+        ("testEncodeArray", testEncodeArray),
+        ("testEncodeECMAArray", testEncodeECMAArray),
+        ("testEncodeECMAArrayDouble", testEncodeECMAArrayDouble),
+        ("testEncodeNil", testEncodeNil),
     ]
 
     static let longString = """

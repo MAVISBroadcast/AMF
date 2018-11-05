@@ -54,4 +54,9 @@ class AMF0PerformanceTests: XCTestCase {
             }
         }
     }
+
+    static var allTests = [
+        ("testDecodingPerformance", testDecodingPerformance),
+        ("testEncodingPerformance", testEncodingPerformance),
+        ]
 }
