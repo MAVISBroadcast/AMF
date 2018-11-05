@@ -65,7 +65,7 @@ extension _AMF0Encoder.UnkeyedContainer: _AMF0EncodingContainer {
         var data = Data()
 
         data.append(AMF0Marker.strictArray.rawValue)
-        data.append(contentsOf: UInt16(storage.count).bytes())
+        data.append(contentsOf: UInt32(storage.count).bytes())
         storage.forEach { (container) in
             data.append(container.data)
         }
