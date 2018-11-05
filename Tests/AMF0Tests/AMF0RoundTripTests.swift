@@ -21,7 +21,6 @@ class AMFRoundTripTests: XCTestCase {
                                                surface: .flexible),
         ])
         let encoded = try! encoder.encode(value)
-        print("\(encoded as NSData)")
         let decoded = try! decoder.decode(Airport.self, from: encoded)
 
         XCTAssertEqual(value.name, decoded.name)
