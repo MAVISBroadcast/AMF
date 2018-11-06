@@ -40,14 +40,14 @@ extension _AMF3Decoder {
         var index: Data.Index
         var codingPath: [CodingKey]
         var userInfo: [CodingUserInfoKey: Any]
-        var referenceTable: DecodingReferenceTable
+        var referenceTable: AMF3DecodingReferenceTable
         var className: String?
 
         func nestedCodingPath(forKey key: CodingKey) -> [CodingKey] {
             return codingPath + [key]
         }
 
-        init(data: Data, codingPath: [CodingKey], userInfo: [CodingUserInfoKey: Any], referenceTable: DecodingReferenceTable) {
+        init(data: Data, codingPath: [CodingKey], userInfo: [CodingUserInfoKey: Any], referenceTable: AMF3DecodingReferenceTable) {
             self.codingPath = codingPath
             self.userInfo = userInfo
             self.data = data

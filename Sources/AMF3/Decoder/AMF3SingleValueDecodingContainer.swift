@@ -6,9 +6,9 @@ extension _AMF3Decoder {
         var codingPath: [CodingKey]
         var userInfo: [CodingUserInfoKey: Any]
         var index: Data.Index
-        var referenceTable: DecodingReferenceTable
+        var referenceTable: AMF3DecodingReferenceTable
 
-        init(data: Data, codingPath: [CodingKey], userInfo: [CodingUserInfoKey: Any], referenceTable: DecodingReferenceTable) {
+        init(data: Data, codingPath: [CodingKey], userInfo: [CodingUserInfoKey: Any], referenceTable: AMF3DecodingReferenceTable) {
             self.data = data
             self.codingPath = codingPath
             self.userInfo = userInfo

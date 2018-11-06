@@ -10,7 +10,7 @@ public final class AMF3Decoder {
     public var finishedIndex: Data.Index = 0
 
     func decode<T>(_: T.Type, from data: Data) throws -> T where T: Decodable {
-        let decoder = _AMF3Decoder(data: data, referenceTable: DecodingReferenceTable())
+        let decoder = _AMF3Decoder(data: data, referenceTable: AMF3DecodingReferenceTable())
         #if DEBUG
             _decoder = decoder
         #endif
@@ -27,9 +27,9 @@ final class _AMF3Decoder {
     var container: AMF3DecodingContainer?
     fileprivate var data: Data
 
-    let referenceTable: DecodingReferenceTable
+    let referenceTable: AMF3DecodingReferenceTable
 
-    init(data: Data, referenceTable: DecodingReferenceTable) {
+    init(data: Data, referenceTable: AMF3DecodingReferenceTable) {
         self.data = data
         self.referenceTable = referenceTable
     }

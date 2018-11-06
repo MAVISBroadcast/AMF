@@ -12,7 +12,7 @@ extension _AMF3Decoder {
 
         var data: Data
         var index: Data.Index
-        var referenceTable: DecodingReferenceTable
+        var referenceTable: AMF3DecodingReferenceTable
         var format: AMF3Marker?
 
         lazy var count: Int? = {
@@ -57,7 +57,7 @@ extension _AMF3Decoder {
             return nestedContainers
         }()
 
-        init(data: Data, codingPath: [CodingKey], userInfo: [CodingUserInfoKey: Any], referenceTable: DecodingReferenceTable) {
+        init(data: Data, codingPath: [CodingKey], userInfo: [CodingUserInfoKey: Any], referenceTable: AMF3DecodingReferenceTable) {
             self.codingPath = codingPath
             self.userInfo = userInfo
             self.data = data
