@@ -51,13 +51,13 @@ class AMFEncodingTests: XCTestCase {
     }
 
     func testEncodeECMAArray() {
-        let dictionary = ["a" : "1", "b": "2"]
+        let dictionary = ["a": "1", "b": "2"]
         let value = try! encoder.encode(dictionary)
         XCTAssertEqual(value[0], AMF0Marker.ecmaArray.rawValue)
     }
 
     func testEncodeECMAArrayDouble() {
-        let dictionary = ["a" : 1.0, "b": 1.0]
+        let dictionary = ["a": 1.0, "b": 1.0]
         let value = try! encoder.encode(dictionary)
         XCTAssertEqual(value[0], AMF0Marker.ecmaArray.rawValue)
     }

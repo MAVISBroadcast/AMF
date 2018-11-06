@@ -48,7 +48,7 @@ class AMF0DecodingTests: XCTestCase {
     }
 
     func testNamedObject() {
-        let data = Data(bytes: [AMF0Marker.typedObject.rawValue, /* string length: 1 */ 0x00, 0x01, /* class name: a */ 0x61,/* string length: 1 */ 0x00, 0x01, /* a */ 0x61, AMF0Marker.string.rawValue, /* string length: 1 */ 0x00, 0x01, /* a */ 0x61, /* empty UTF-8 */ 0x00, 0x00, AMF0Marker.objectEnd.rawValue])
+        let data = Data(bytes: [AMF0Marker.typedObject.rawValue, /* string length: 1 */ 0x00, 0x01, /* class name: a */ 0x61, /* string length: 1 */ 0x00, 0x01, /* a */ 0x61, AMF0Marker.string.rawValue, /* string length: 1 */ 0x00, 0x01, /* a */ 0x61, /* empty UTF-8 */ 0x00, 0x00, AMF0Marker.objectEnd.rawValue])
         let value = try! decoder.decode([String: String].self, from: data)
         XCTAssertEqual(value, ["a": "a"])
     }

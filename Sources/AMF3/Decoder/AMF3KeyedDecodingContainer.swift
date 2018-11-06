@@ -21,13 +21,11 @@ extension _AMF3Decoder {
                         let context = DecodingError.Context(codingPath: codingPath, debugDescription: "Cannot load string")
                         throw DecodingError.dataCorrupted(context)
                     }
-                    
+
                     self.className = className
                     fallthrough
                 case .object:
                     return nestedContainersForObject()
-                case .ecmaArray:
-                    return nestedContainersForECMAArray()
                 default:
                     return [:]
                 }
@@ -75,31 +73,6 @@ extension _AMF3Decoder {
                 }
                 let rawByte = try readByte()
                 guard let objectEndMarker = AMF3Marker(rawValue: rawByte), objectEndMarker == .objectEnd else {
-                    return [:]
-                }
-            } catch {
-                fatalError("\(error)") // FIXME:
-            }
-
-            return nestedContainers
-        }
-
-        func nestedContainersForECMAArray() -> [String: AMF3DecodingContainer] {
-            var nestedContainers: [String: AMF3DecodingContainer] = [:]
-
-            do {
-                let count: UInt32 = try read(UInt32.self)
-
-                for _ in 0 ..< count {
-                    let keyLength: UInt16 = try read(UInt16.self)
-
-                    let keyAndObject = try readKeyAndObject(keyLength: keyLength)
-                    nestedContainers[keyAndObject.key] = keyAndObject.object
-                }
-
-                let emptyLength = try read(UInt16.self)
-                let rawByte = try readByte()
-                guard emptyLength == 0, let objectEndMarker = AMF3Marker(rawValue: rawByte), objectEndMarker == .objectEnd else {
                     return [:]
                 }
             } catch {

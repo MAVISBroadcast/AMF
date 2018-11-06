@@ -21,7 +21,7 @@ extension _AMF0Decoder {
                         let context = DecodingError.Context(codingPath: codingPath, debugDescription: "Cannot load string")
                         throw DecodingError.dataCorrupted(context)
                     }
-                    
+
                     self.className = className
                     fallthrough
                 case .object:

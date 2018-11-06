@@ -64,7 +64,7 @@ extension _AMF3Encoder.UnkeyedContainer: AMF3EncodingContainer {
     var data: Data {
         var data = Data()
 
-        data.append(AMF3Marker.strictArray.rawValue)
+        data.append(AMF3Marker.array.rawValue)
         data.append(contentsOf: UInt32(storage.count).bytes())
         storage.forEach { container in
             data.append(container.data)

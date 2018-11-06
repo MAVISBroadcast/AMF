@@ -21,18 +21,28 @@ extension _AMF3Decoder {
                 let rawFormat = try readByte()
                 if let format = AMF3Marker(rawValue: rawFormat) {
                     switch format {
-                    case AMF3Marker.boolean:
-                        return 1 + 1 // marker + one byte
+                    case AMF3Marker.true:
+                        return 1
+                    case AMF3Marker.false:
+                        return 1
                     case AMF3Marker.string:
-                        return 1 + 2 + Int(try read(UInt16.self)) // marker + length UInt16 + actual length of string
-                    case AMF3Marker.longString:
-                        return 1 + 4 + Int(try read(UInt16.self)) // marker + length UInt32 + actual length of string
-                    case AMF3Marker.number:
+                        let length = UInt32(variableBytes: data[index...])
+                        if let variableLength = length.variableLength {
+                            defer { index += variableLength }
+                            return 1 + variableLength + Int(length) // marker + length of variable int + actual length of string
+                        }
+                    case AMF3Marker.double:
                         return 1 + 8 // marker + IEEE 754 DOUBLE
                     case AMF3Marker.date:
-                        return 1 + 8 + 2 // marker + IEEE 754 DOUBLE + unused UInt16 time zone int
+                        return 1 + 8 // marker + IEEE 754 DOUBLE
                     case AMF3Marker.null, AMF3Marker.undefined:
                         return 1
+                    case AMF3Marker.integer:
+                        let length = UInt32(variableBytes: data[index...])
+                        if let variableLength = length.variableLength {
+                            defer { index += variableLength }
+                            return 1 + variableLength
+                        }
                     default:
                         return nil
                     }
@@ -63,9 +73,10 @@ extension _AMF3Decoder.SingleValueContainer: SingleValueDecodingContainer {
     func decode(_: Bool.Type) throws -> Bool {
         let format = try readByte()
         switch format {
-        case AMF3Marker.boolean.rawValue:
-            let booleanValue = try readByte()
-            return booleanValue > 0x00
+        case AMF3Marker.true.rawValue:
+            return true
+        case AMF3Marker.false.rawValue:
+            return false
         default:
             let context = DecodingError.Context(codingPath: codingPath, debugDescription: "Invalid format: \(String(describing: AMF3Marker(rawValue: format)))")
             throw DecodingError.typeMismatch(Double.self, context)
@@ -75,16 +86,8 @@ extension _AMF3Decoder.SingleValueContainer: SingleValueDecodingContainer {
     func decode(_: String.Type) throws -> String {
         let format = try readByte()
         switch format {
-        case AMF3Marker.string.rawValue:
+        case AMF3Marker.strigng.rawValue:
             let length: UInt16 = try read(UInt16.self)
-            let utfData = try read(Int(length))
-            guard let string = String(data: utfData, encoding: .utf8) else {
-                let context = DecodingError.Context(codingPath: codingPath, debugDescription: "Cannot load string")
-                throw DecodingError.dataCorrupted(context)
-            }
-            return string
-        case AMF3Marker.longString.rawValue:
-            let length: UInt32 = try read(UInt32.self)
             let utfData = try read(Int(length))
             guard let string = String(data: utfData, encoding: .utf8) else {
                 let context = DecodingError.Context(codingPath: codingPath, debugDescription: "Cannot load string")
@@ -100,7 +103,7 @@ extension _AMF3Decoder.SingleValueContainer: SingleValueDecodingContainer {
     func decode(_: Double.Type) throws -> Double {
         let format = try readByte()
         switch format {
-        case AMF3Marker.number.rawValue:
+        case AMF3Marker.double.rawValue:
             return try Double(bitPattern: read(UInt64.self))
         case AMF3Marker.date.rawValue:
             let date = try Double(bitPattern: read(UInt64.self))
