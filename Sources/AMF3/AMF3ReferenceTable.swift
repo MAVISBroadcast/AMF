@@ -8,9 +8,13 @@
 import Foundation
 
 class AMF3DecodingReferenceTable {
-    var decodingArray: [AMF3DecodingContainer] = []
+    var decodingStringsTable: [_AMF0Decoder.SingleValueContainer] = []
+    var decodingComplexObjectsTable: [AMF3DecodingContainer] = []
+    var decodingObjectTraitsTable: [AMF3DecodingContainer] = []
 }
 
 class AMF3EncodingReferenceTable {
-    var encodingLookup: [Int: (index: Int, AMF3EncodingContainer)] = [:]
+    var encodingStringsTable: [String] = []
+    var encodingComplexObjectsTable: [AMF3EncodingContainer] = []
+    var encodingObjectTraitsTable: [AMF3EncodingContainer] = []
 }

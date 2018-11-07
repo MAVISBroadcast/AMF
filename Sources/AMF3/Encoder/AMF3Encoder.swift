@@ -4,8 +4,6 @@ import Foundation
 
  */
 public class AMF3Encoder {
-    static let EncodeAsECMAArray: CodingUserInfoKey = CodingUserInfoKey(rawValue: "EncodeAsECMAArray")!
-
     func encode(_ value: Encodable) throws -> Data {
         let encoder = _AMF3Encoder()
 
@@ -14,12 +12,6 @@ public class AMF3Encoder {
             try Box<Data>(data).encode(to: encoder)
         case let date as Date:
             try Box<Date>(date).encode(to: encoder)
-        case let dictionary as [String: String]:
-            encoder.userInfo[AMF3Encoder.EncodeAsECMAArray] = true
-            try Box<[String: String]>(dictionary).encode(to: encoder)
-        case let dictionary as [String: Double]:
-            encoder.userInfo[AMF3Encoder.EncodeAsECMAArray] = true
-            try Box<[String: Double]>(dictionary).encode(to: encoder)
         default:
             try value.encode(to: encoder)
         }
@@ -35,6 +27,8 @@ final class _AMF3Encoder {
 
     fileprivate var container: AMF3EncodingContainer?
 
+    var referenceTable = AMF3EncodingReferenceTable()
+
     var data: Data {
         return container?.data ?? Data()
     }
@@ -48,7 +42,7 @@ extension _AMF3Encoder: Encoder {
     func container<Key>(keyedBy _: Key.Type) -> KeyedEncodingContainer<Key> where Key: CodingKey {
         assertCanCreateContainer()
 
-        let container = KeyedContainer<Key>(codingPath: codingPath, userInfo: userInfo)
+        let container = KeyedContainer<Key>(codingPath: codingPath, userInfo: userInfo, referenceTable: referenceTable)
         self.container = container
 
         return KeyedEncodingContainer(container)
@@ -57,7 +51,7 @@ extension _AMF3Encoder: Encoder {
     func unkeyedContainer() -> UnkeyedEncodingContainer {
         assertCanCreateContainer()
 
-        let container = UnkeyedContainer(codingPath: codingPath, userInfo: userInfo)
+        let container = UnkeyedContainer(codingPath: codingPath, userInfo: userInfo, referenceTable: referenceTable)
         self.container = container
 
         return container
@@ -66,7 +60,7 @@ extension _AMF3Encoder: Encoder {
     func singleValueContainer() -> SingleValueEncodingContainer {
         assertCanCreateContainer()
 
-        let container = SingleValueContainer(codingPath: codingPath, userInfo: userInfo)
+        let container = SingleValueContainer(codingPath: codingPath, userInfo: userInfo, referenceTable: referenceTable)
         self.container = container
 
         return container

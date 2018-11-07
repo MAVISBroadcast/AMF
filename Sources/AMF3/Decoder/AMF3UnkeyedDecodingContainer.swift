@@ -21,10 +21,8 @@ extension _AMF3Decoder {
                 self.format = AMF3Marker(rawValue: format)
 
                 switch format {
-                case AMF3Marker.strictArray.rawValue:
+                case AMF3Marker.array.rawValue:
                     return Int(try read(UInt32.self))
-                case AMF3Marker.reference.rawValue:
-                    return -1
                 default:
                     return nil
                 }
@@ -149,25 +147,19 @@ extension _AMF3Decoder.UnkeyedContainer {
             throw DecodingError.typeMismatch(Double.self, context)
         }
 
-        if format == .object || format == .strictArray || format == .typedObject || format == .ecmaArray {
-        }
-
         switch format {
-        case .object, .ecmaArray:
+        case .object:
             let container = _AMF3Decoder.KeyedContainer<AnyCodingKey>(data: data.suffix(from: startIndex), codingPath: nestedCodingPath, userInfo: userInfo, referenceTable: referenceTable)
-            referenceTable.decodingArray.append(container)
+            referenceTable.decodingComplexObjectsTable.append(container)
             _ = container.nestedContainers // FIXME:
             index = container.index
             return container
-        case .boolean:
-            length = 1
-        case .number:
+        case .true, .false:
+            length = 0
+        case .double:
             length = 8
         case .string:
             length = Int(try read(UInt16.self))
-        case .reference:
-            let reference = Int(try read(UInt16.self))
-            return referenceTable.decodingArray[reference]
         default:
             throw DecodingError.dataCorruptedError(in: self, debugDescription: "Invalid format: \(format)")
         }

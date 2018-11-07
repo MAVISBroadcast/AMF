@@ -86,14 +86,21 @@ extension _AMF3Decoder.SingleValueContainer: SingleValueDecodingContainer {
     func decode(_: String.Type) throws -> String {
         let format = try readByte()
         switch format {
-        case AMF3Marker.strigng.rawValue:
-            let length: UInt16 = try read(UInt16.self)
-            let utfData = try read(Int(length))
-            guard let string = String(data: utfData, encoding: .utf8) else {
-                let context = DecodingError.Context(codingPath: codingPath, debugDescription: "Cannot load string")
-                throw DecodingError.dataCorrupted(context)
+        case AMF3Marker.string.rawValue:
+            let potentialReference = UInt32(variableBytes: data[index...])
+            let bitShiftedIndexOrLength = Int(potentialReference >> 1)
+            if potentialReference & 1 == 0 {
+                let decoderContainer = referenceTable.decodingStringsTable[bitShiftedIndexOrLength]
+                decoderContainer.index = decoderContainer.data.startIndex
+                return try decoderContainer.decode(String.self)
+            } else {
+                let utfData = try read(bitShiftedIndexOrLength)
+                guard let string = String(data: utfData, encoding: .utf8) else {
+                    let context = DecodingError.Context(codingPath: codingPath, debugDescription: "Cannot load string")
+                    throw DecodingError.dataCorrupted(context)
+                }
+                return string
             }
-            return string
         default:
             let context = DecodingError.Context(codingPath: codingPath, debugDescription: "Invalid format: \(String(describing: AMF3Marker(rawValue: format)))")
             throw DecodingError.typeMismatch(Double.self, context)

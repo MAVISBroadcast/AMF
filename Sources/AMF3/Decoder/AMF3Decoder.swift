@@ -44,7 +44,7 @@ extension _AMF3Decoder: Decoder {
         assertCanCreateContainer()
 
         let container = KeyedContainer<Key>(data: data, codingPath: codingPath, userInfo: userInfo, referenceTable: referenceTable)
-        referenceTable.decodingArray.append(container)
+        referenceTable.decodingComplexObjectsTable.append(container)
         self.container = container
 
         return KeyedDecodingContainer(container)
@@ -54,7 +54,7 @@ extension _AMF3Decoder: Decoder {
         assertCanCreateContainer()
 
         let container = UnkeyedContainer(data: data, codingPath: codingPath, userInfo: userInfo, referenceTable: referenceTable)
-        referenceTable.decodingArray.append(container)
+        referenceTable.decodingComplexObjectsTable.append(container)
         self.container = container
 
         return container

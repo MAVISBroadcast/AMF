@@ -13,17 +13,6 @@ extension _AMF3Decoder {
                 }
 
                 switch objectMarker {
-                case .typedObject:
-                    let classNameLength: UInt16 = try read(UInt16.self)
-                    let classNameUTFData = try read(Int(classNameLength))
-
-                    guard let className = String(data: classNameUTFData, encoding: .utf8) else {
-                        let context = DecodingError.Context(codingPath: codingPath, debugDescription: "Cannot load string")
-                        throw DecodingError.dataCorrupted(context)
-                    }
-
-                    self.className = className
-                    fallthrough
                 case .object:
                     return nestedContainersForObject()
                 default:
@@ -70,10 +59,6 @@ extension _AMF3Decoder {
                     nestedContainers[keyAndObject.key] = keyAndObject.object
 
                     keyLength = try read(UInt16.self)
-                }
-                let rawByte = try readByte()
-                guard let objectEndMarker = AMF3Marker(rawValue: rawByte), objectEndMarker == .objectEnd else {
-                    return [:]
                 }
             } catch {
                 fatalError("\(error)") // FIXME:

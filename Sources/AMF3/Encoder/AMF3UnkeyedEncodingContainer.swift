@@ -15,10 +15,12 @@ extension _AMF3Encoder {
         }
 
         var userInfo: [CodingUserInfoKey: Any]
+        var referenceTable: AMF3EncodingReferenceTable
 
-        init(codingPath: [CodingKey], userInfo: [CodingUserInfoKey: Any]) {
+        init(codingPath: [CodingKey], userInfo: [CodingUserInfoKey: Any], referenceTable: AMF3EncodingReferenceTable) {
             self.codingPath = codingPath
             self.userInfo = userInfo
+            self.referenceTable = referenceTable
         }
     }
 }
@@ -35,21 +37,21 @@ extension _AMF3Encoder.UnkeyedContainer: UnkeyedEncodingContainer {
     }
 
     private func nestedSingleValueContainer() -> SingleValueEncodingContainer {
-        let container = _AMF3Encoder.SingleValueContainer(codingPath: nestedCodingPath, userInfo: userInfo)
+        let container = _AMF3Encoder.SingleValueContainer(codingPath: nestedCodingPath, userInfo: userInfo, referenceTable: referenceTable)
         storage.append(container)
 
         return container
     }
 
     func nestedContainer<NestedKey>(keyedBy _: NestedKey.Type) -> KeyedEncodingContainer<NestedKey> where NestedKey: CodingKey {
-        let container = _AMF3Encoder.KeyedContainer<NestedKey>(codingPath: nestedCodingPath, userInfo: userInfo)
+        let container = _AMF3Encoder.KeyedContainer<NestedKey>(codingPath: nestedCodingPath, userInfo: userInfo, referenceTable: referenceTable)
         storage.append(container)
 
         return KeyedEncodingContainer(container)
     }
 
     func nestedUnkeyedContainer() -> UnkeyedEncodingContainer {
-        let container = _AMF3Encoder.UnkeyedContainer(codingPath: nestedCodingPath, userInfo: userInfo)
+        let container = _AMF3Encoder.UnkeyedContainer(codingPath: nestedCodingPath, userInfo: userInfo, referenceTable: referenceTable)
         storage.append(container)
 
         return container

@@ -6,14 +6,16 @@ extension _AMF3Encoder {
 
         var codingPath: [CodingKey]
         var userInfo: [CodingUserInfoKey: Any]
+        var referenceTable: AMF3EncodingReferenceTable
 
         func nestedCodingPath(forKey key: CodingKey) -> [CodingKey] {
             return codingPath + [key]
         }
 
-        init(codingPath: [CodingKey], userInfo: [CodingUserInfoKey: Any]) {
+        init(codingPath: [CodingKey], userInfo: [CodingUserInfoKey: Any], referenceTable: AMF3EncodingReferenceTable) {
             self.codingPath = codingPath
             self.userInfo = userInfo
+            self.referenceTable = referenceTable
         }
     }
 }
@@ -30,20 +32,20 @@ extension _AMF3Encoder.KeyedContainer: KeyedEncodingContainerProtocol {
     }
 
     private func nestedSingleValueContainer(forKey key: Key) -> SingleValueEncodingContainer {
-        let container = _AMF3Encoder.SingleValueContainer(codingPath: nestedCodingPath(forKey: key), userInfo: userInfo)
+        let container = _AMF3Encoder.SingleValueContainer(codingPath: nestedCodingPath(forKey: key), userInfo: userInfo, referenceTable: referenceTable)
         storage[AnyCodingKey(key)] = container
         return container
     }
 
     func nestedUnkeyedContainer(forKey key: Key) -> UnkeyedEncodingContainer {
-        let container = _AMF3Encoder.UnkeyedContainer(codingPath: nestedCodingPath(forKey: key), userInfo: userInfo)
+        let container = _AMF3Encoder.UnkeyedContainer(codingPath: nestedCodingPath(forKey: key), userInfo: userInfo, referenceTable: referenceTable)
         storage[AnyCodingKey(key)] = container
 
         return container
     }
 
     func nestedContainer<NestedKey>(keyedBy _: NestedKey.Type, forKey key: Key) -> KeyedEncodingContainer<NestedKey> where NestedKey: CodingKey {
-        let container = _AMF3Encoder.KeyedContainer<NestedKey>(codingPath: nestedCodingPath(forKey: key), userInfo: userInfo)
+        let container = _AMF3Encoder.KeyedContainer<NestedKey>(codingPath: nestedCodingPath(forKey: key), userInfo: userInfo, referenceTable: referenceTable)
         storage[AnyCodingKey(key)] = container
 
         return KeyedEncodingContainer(container)
@@ -62,12 +64,7 @@ extension _AMF3Encoder.KeyedContainer: AMF3EncodingContainer {
     var data: Data {
         var data = Data()
 
-        if let encodeAsECMAArray = userInfo[AMF3Encoder.EncodeAsECMAArray] as? Bool, encodeAsECMAArray {
-            data.append(AMF3Marker.ecmaArray.rawValue)
-            data.append(contentsOf: UInt32(storage.count).bytes())
-        } else {
-            data.append(AMF3Marker.object.rawValue)
-        }
+        data.append(AMF3Marker.object.rawValue)
 
         for (key, container) in storage {
             let stringKey = key.stringValue
@@ -79,7 +76,6 @@ extension _AMF3Encoder.KeyedContainer: AMF3EncodingContainer {
 
         let emptyKey = UInt16(0).bytes()
         data.append(contentsOf: emptyKey)
-        data.append(AMF3Marker.objectEnd.rawValue)
 
         return data
     }

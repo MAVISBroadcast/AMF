@@ -14,10 +14,12 @@ extension _AMF3Encoder {
 
         var codingPath: [CodingKey]
         var userInfo: [CodingUserInfoKey: Any]
+        var referenceTable: AMF3EncodingReferenceTable
 
-        init(codingPath: [CodingKey], userInfo: [CodingUserInfoKey: Any]) {
+        init(codingPath: [CodingKey], userInfo: [CodingUserInfoKey: Any], referenceTable: AMF3EncodingReferenceTable) {
             self.codingPath = codingPath
             self.userInfo = userInfo
+            self.referenceTable = referenceTable
         }
     }
 }
@@ -28,8 +30,11 @@ extension _AMF3Encoder.SingleValueContainer: SingleValueEncodingContainer {
     }
 
     func encode(_ value: Bool) throws {
-        data.append(AMF3Marker.boolean.rawValue)
-        data.append(value ? 0x01 : 0x00)
+        if value {
+            data.append(AMF3Marker.true.rawValue)
+        } else {
+            data.append(AMF3Marker.false.rawValue)
+        }
     }
 
     func encode(_ value: String) throws {
@@ -38,13 +43,10 @@ extension _AMF3Encoder.SingleValueContainer: SingleValueEncodingContainer {
             throw EncodingError.invalidValue(value, context)
         }
         let length = stringData.count
-        if let uInt16Length = UInt16(exactly: length) {
+        if let uInt29Length = UInt32(exactly: length) {
+
             data.append(AMF3Marker.string.rawValue)
-            data.append(contentsOf: uInt16Length.bytes())
-            data.append(contentsOf: stringData)
-        } else if let uInt32Length = UInt32(exactly: length) {
-            data.append(AMF3Marker.longString.rawValue)
-            data.append(contentsOf: uInt32Length.bytes())
+            data.append(contentsOf: uInt29Length.bytes())
             data.append(contentsOf: stringData)
         } else {
             let context = EncodingError.Context(codingPath: codingPath, debugDescription: "Cannot encode string with length \(length).")
@@ -53,7 +55,7 @@ extension _AMF3Encoder.SingleValueContainer: SingleValueEncodingContainer {
     }
 
     func encode(_ value: Double) throws {
-        data.append(AMF3Marker.number.rawValue)
+        data.append(AMF3Marker.double.rawValue)
         data.append(contentsOf: value.bitPattern.bytes())
     }
 
