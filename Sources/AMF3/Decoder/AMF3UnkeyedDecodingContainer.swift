@@ -22,7 +22,14 @@ extension _AMF3Decoder {
 
                 switch format {
                 case AMF3Marker.array.rawValue:
-                    return Int(try read(UInt32.self))
+                    let potentialReference = UInt32(variableBytes: data[index...])
+                    let bitShiftedIndexOrLength = Int(potentialReference >> 1)
+                    if potentialReference & 1 == 0 {
+                        let decoderContainer = referenceTable.decodingComplexObjectsTable[bitShiftedIndexOrLength] as? _AMF3Decoder.UnkeyedContainer
+                        return decoderContainer?.count
+                    } else {
+                        return bitShiftedIndexOrLength
+                    }
                 default:
                     return nil
                 }

@@ -125,7 +125,6 @@ extension _AMF3Encoder.SingleValueContainer: SingleValueEncodingContainer {
 
         data.append(AMF3Marker.date.rawValue)
         data.append(contentsOf: (value.timeIntervalSince1970 * 1000).bitPattern.bytes())
-        data.append(contentsOf: UInt16(0).bytes())
     }
 }
 

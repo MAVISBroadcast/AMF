@@ -1,7 +1,7 @@
 @testable import AMF
 import XCTest
 
-class AMFRoundTripTests: XCTestCase {
+class AMF0RoundTripTests: XCTestCase {
     var encoder: AMF0Encoder!
     var decoder: AMF0Decoder!
 

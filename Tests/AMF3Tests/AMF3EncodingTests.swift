@@ -1,78 +1,64 @@
 @testable import AMF
 import XCTest
 
-class AMF0EncodingTests: XCTestCase {
-    var encoder: AMF0Encoder!
+class AMF3EncodingTests: XCTestCase {
+    var encoder: AMF3Encoder!
 
     override func setUp() {
-        encoder = AMF0Encoder()
+        encoder = AMF3Encoder()
     }
 
     func testBoolEncode() {
         let value = try! encoder.encode(false)
-        XCTAssertEqual(value, Data(bytes: [AMF0Marker.boolean.rawValue, 0x00]))
+        XCTAssertEqual(value, Data(bytes: [AMF3Marker.false.rawValue]))
     }
 
     func testDoubleEncode() {
         let value = try! encoder.encode(2.0)
-        XCTAssertEqual(value, Data(bytes: [AMF0Marker.number.rawValue, 0x40, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00]))
+        XCTAssertEqual(value, Data(bytes: [AMF3Marker.double.rawValue, 0x40, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00]))
     }
 
-    func testStringEncode() {
-        let value = try! encoder.encode("Hello, World")
-        XCTAssertEqual(value, Data(bytes: [AMF0Marker.string.rawValue, 0x00, 0x0C, 0x48, 0x65, 0x6C, 0x6C, 0x6F, 0x2C, 0x20, 0x57, 0x6F, 0x72, 0x6C, 0x64]))
-    }
-
-    func testEmptyStringEncode() {
-        let value = try! encoder.encode("")
-        XCTAssertEqual(value, Data(bytes: [AMF0Marker.string.rawValue, 0x00, 0x00]))
-    }
+//    func testStringEncode() {
+//        let value = try! encoder.encode("Hello, World")
+//        XCTAssertEqual(value, Data(bytes: [AMF3Marker.string.rawValue, 0x0C, 0x48, 0x65, 0x6C, 0x6C, 0x6F, 0x2C, 0x20, 0x57, 0x6F, 0x72, 0x6C, 0x64]))
+//    }
+//
+//    func testEmptyStringEncode() {
+//        let value = try! encoder.encode("")
+//        XCTAssertEqual(value, Data(bytes: [AMF3Marker.string.rawValue, 0x00, 0x00]))
+//    }
 
     func testDateEncode() {
         let value = try! encoder.encode(Date(timeIntervalSince1970: 1_541_169_100))
-        XCTAssertEqual(value, Data(bytes: [AMF0Marker.date.rawValue, 0x42, 0x76, 0x6D, 0x4D, 0x63, 0x4E, 0x00, 0x00, /* time zone */ 0x00, 0x00]))
+        XCTAssertEqual(value, Data(bytes: [AMF3Marker.date.rawValue, 0x42, 0x76, 0x6D, 0x4D, 0x63, 0x4E, 0x00, 0x00]))
     }
 
-    func testDateObjectEncode() {
-        let date = ObjectWithDate(date: Date(timeIntervalSince1970: 1_541_169_100))
-        let value = try! encoder.encode(date)
-        XCTAssertEqual(value, Data(bytes: [AMF0Marker.object.rawValue, 0x00, 0x04, 0x64, 0x61, 0x74, 0x65, AMF0Marker.date.rawValue, 0x42, 0x76, 0x6D, 0x4D, 0x63, 0x4E, 0x00, 0x00, /* time zone */ 0x00, 0x00, 0x00, 0x00, 0x09]))
-    }
-
-    func testEncodeArray() {
-        let stringArray = ["Hello", ",", " ", "World"]
-        let value = try! encoder.encode(stringArray)
-        XCTAssertEqual(value, Data(bytes: [AMF0Marker.strictArray.rawValue, 0x00, 0x00, 0x00, 0x04, AMF0Marker.string.rawValue, 0x00, 0x05, 0x48, 0x65, 0x6C, 0x6C, 0x6F, AMF0Marker.string.rawValue, 0x00, 0x01, 0x2C, AMF0Marker.string.rawValue, 0x00, 0x01, 0x20, AMF0Marker.string.rawValue, 0x00, 0x05, 0x57, 0x6F, 0x72, 0x6C, 0x64]))
-    }
-
-    func testEncodeECMAArray() {
-        let dictionary = ["a": "1", "b": "2"]
-        let value = try! encoder.encode(dictionary)
-        XCTAssertEqual(value[0], AMF0Marker.ecmaArray.rawValue)
-    }
-
-    func testEncodeECMAArrayDouble() {
-        let dictionary = ["a": 1.0, "b": 1.0]
-        let value = try! encoder.encode(dictionary)
-        XCTAssertEqual(value[0], AMF0Marker.ecmaArray.rawValue)
-    }
+//    func testDateObjectEncode() {
+//        let date = ObjectWithDate(date: Date(timeIntervalSince1970: 1_541_169_100))
+//        let value = try! encoder.encode(date)
+//        XCTAssertEqual(value, Data(bytes: [AMF3Marker.object.rawValue, 0x00, 0x04, 0x64, 0x61, 0x74, 0x65, AMF3Marker.date.rawValue, 0x42, 0x76, 0x6D, 0x4D, 0x63, 0x4E, 0x00, 0x00, /* time zone */ 0x00, 0x00, 0x00, 0x00, 0x09]))
+//    }
+//
+//    func testEncodeArray() {
+//        let stringArray = ["Hello", ",", " ", "World"]
+//        let value = try! encoder.encode(stringArray)
+//        XCTAssertEqual(value, Data(bytes: [AMF3Marker.array.rawValue, 0x00, 0x00, 0x00, 0x04, AMF3Marker.string.rawValue, 0x00, 0x05, 0x48, 0x65, 0x6C, 0x6C, 0x6F, AMF3Marker.string.rawValue, 0x00, 0x01, 0x2C, AMF3Marker.string.rawValue, 0x00, 0x01, 0x20, AMF3Marker.string.rawValue, 0x00, 0x05, 0x57, 0x6F, 0x72, 0x6C, 0x64]))
+//    }
 
     func testEncodeNil() {
         let nilString: String? = nil
         let value = try! encoder.encode(nilString)
-        XCTAssertEqual(value, Data(bytes: [AMF0Marker.null.rawValue]))
+        XCTAssertEqual(value, Data(bytes: [AMF3Marker.null.rawValue]))
     }
 
     static var allTests = [
         ("testBoolEncode", testBoolEncode),
         ("testDoubleEncode", testDoubleEncode),
-        ("testStringEncode", testStringEncode),
-        ("testEmptyStringEncode", testEmptyStringEncode),
+//        ("testStringEncode", testStringEncode),
+//        ("testEmptyStringEncode", testEmptyStringEncode),
         ("testDateEncode", testDateEncode),
-        ("testDateObjectEncode", testDateObjectEncode),
-        ("testEncodeArray", testEncodeArray),
-        ("testEncodeECMAArray", testEncodeECMAArray),
-        ("testEncodeECMAArrayDouble", testEncodeECMAArrayDouble),
+//        ("testDateObjectEncode", testDateObjectEncode),
+//        ("testEncodeArray", testEncodeArray),
         ("testEncodeNil", testEncodeNil),
     ]
 

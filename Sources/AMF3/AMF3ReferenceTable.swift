@@ -8,7 +8,7 @@
 import Foundation
 
 class AMF3DecodingReferenceTable {
-    var decodingStringsTable: [_AMF0Decoder.SingleValueContainer] = []
+    var decodingStringsTable: [String] = []
     var decodingComplexObjectsTable: [AMF3DecodingContainer] = []
     var decodingObjectTraitsTable: [AMF3DecodingContainer] = []
 }

@@ -90,15 +90,16 @@ extension _AMF3Decoder.SingleValueContainer: SingleValueDecodingContainer {
             let potentialReference = UInt32(variableBytes: data[index...])
             let bitShiftedIndexOrLength = Int(potentialReference >> 1)
             if potentialReference & 1 == 0 {
-                let decoderContainer = referenceTable.decodingStringsTable[bitShiftedIndexOrLength]
-                decoderContainer.index = decoderContainer.data.startIndex
-                return try decoderContainer.decode(String.self)
+                let string = referenceTable.decodingStringsTable[bitShiftedIndexOrLength]
+                return string
             } else {
+                index += potentialReference.variableLength ?? 0
                 let utfData = try read(bitShiftedIndexOrLength)
                 guard let string = String(data: utfData, encoding: .utf8) else {
                     let context = DecodingError.Context(codingPath: codingPath, debugDescription: "Cannot load string")
                     throw DecodingError.dataCorrupted(context)
                 }
+                referenceTable.decodingStringsTable.append(string)
                 return string
             }
         default:
