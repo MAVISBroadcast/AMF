@@ -43,10 +43,11 @@ extension _AMF3Encoder.SingleValueContainer: SingleValueEncodingContainer {
             throw EncodingError.invalidValue(value, context)
         }
         let length = stringData.count
-        if let uInt29Length = UInt32(exactly: length) {
+        if let length = UInt32(exactly: length) {
 
             data.append(AMF3Marker.string.rawValue)
-            data.append(contentsOf: uInt29Length.bytes())
+            let bitShiftedLength = (length << 1) | 1
+            data.append(contentsOf: try bitShiftedLength.variableBytes())
             data.append(contentsOf: stringData)
         } else {
             let context = EncodingError.Context(codingPath: codingPath, debugDescription: "Cannot encode string with length \(length).")

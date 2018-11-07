@@ -53,11 +53,11 @@ class AMF3DecodingTests: XCTestCase {
         XCTAssertEqual(value, [])
     }
 
-//    func testArray() {
-//        let data = Data(bytes: [AMF3Marker.array.rawValue, /* count: 1 */ 0x00, 0x00, 0x00, 0x03, AMF3Marker.string.rawValue, /* U29 length of 5*/ 0x0B, /* UTF8 chars */ 0x68, 0x65, 0x6C, 0x6C, 0x6F])
-//        let value = try! decoder.decode([String].self, from: data)
-//        XCTAssertEqual(value, ["hello"])
-//    }
+    func testArray() {
+        let data = Data(bytes: [AMF3Marker.array.rawValue, 0x09, 0x01, AMF3Marker.string.rawValue, 0x0B, 0x48, 0x65, 0x6C, 0x6C, 0x6F, AMF3Marker.string.rawValue, 0x03, 0x2C, AMF3Marker.string.rawValue, 0x03, 0x20, AMF3Marker.string.rawValue, 0x0B, 0x57, 0x6F, 0x72, 0x6C, 0x64])
+        let value = try! decoder.decode([String].self, from: data)
+        XCTAssertEqual(value, ["Hello", ",", " ", "World"])
+    }
 
 //    func testDictionaryWithArrayInIt() {
 //        let data = Data(bytes: [AMF3Marker.object.rawValue, /* string length: 1 */ 0x00, 0x01, /* a */ 0x61, AMF3Marker.array.rawValue, /* count: 1 */ 0x00, 0x00, 0x00, 0x01, AMF3Marker.string.rawValue, /* big endian length of 5*/ 0x00, 0x05, /* UTF8 chars */ 0x68, 0x65, 0x6C, 0x6C, 0x6F, /* empty UTF-8 */ 0x00, 0x00])
@@ -86,7 +86,7 @@ class AMF3DecodingTests: XCTestCase {
         ("testDecodeEmptyString", testDecodeEmptyString),
 //        ("testDictionary", testDictionary),
         ("testEmptyArray", testEmptyArray),
-//        ("testArray", testArray),
+        ("testArray", testArray),
 //        ("testDictionaryWithArrayInIt", testDictionaryWithArrayInIt),
         ("testDecodeNil", testDecodeNil),
         ("testDate", testDate),

@@ -24,6 +24,7 @@ extension _AMF3Decoder {
                 case AMF3Marker.array.rawValue:
                     let potentialReference = UInt32(variableBytes: data[index...])
                     let bitShiftedIndexOrLength = Int(potentialReference >> 1)
+                    defer{ index += potentialReference.variableLength ?? 0 }
                     if potentialReference & 1 == 0 {
                         let decoderContainer = referenceTable.decodingComplexObjectsTable[bitShiftedIndexOrLength] as? _AMF3Decoder.UnkeyedContainer
                         return decoderContainer?.count
@@ -47,6 +48,10 @@ extension _AMF3Decoder {
             }
 
             var nestedContainers: [AMF3DecodingContainer] = []
+
+            guard try! readByte() == 0x01 else {
+                fatalError() // Cannot support ECMA Array
+            }
 
             do {
                 for _ in 0 ..< count {
@@ -166,7 +171,9 @@ extension _AMF3Decoder.UnkeyedContainer {
         case .double:
             length = 8
         case .string:
-            length = Int(try read(UInt16.self))
+            let variableUInt = UInt32(variableBytes: data[index...])
+            let variableLength = variableUInt.variableLength!
+            length = variableLength + Int(variableUInt >> 1) // length of variable int + actual length of string
         default:
             throw DecodingError.dataCorruptedError(in: self, debugDescription: "Invalid format: \(format)")
         }

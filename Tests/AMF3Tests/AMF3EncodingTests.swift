@@ -18,15 +18,15 @@ class AMF3EncodingTests: XCTestCase {
         XCTAssertEqual(value, Data(bytes: [AMF3Marker.double.rawValue, 0x40, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00]))
     }
 
-//    func testStringEncode() {
-//        let value = try! encoder.encode("Hello, World")
-//        XCTAssertEqual(value, Data(bytes: [AMF3Marker.string.rawValue, 0x0C, 0x48, 0x65, 0x6C, 0x6C, 0x6F, 0x2C, 0x20, 0x57, 0x6F, 0x72, 0x6C, 0x64]))
-//    }
-//
-//    func testEmptyStringEncode() {
-//        let value = try! encoder.encode("")
-//        XCTAssertEqual(value, Data(bytes: [AMF3Marker.string.rawValue, 0x00, 0x00]))
-//    }
+    func testStringEncode() {
+        let value = try! encoder.encode("hello")
+        XCTAssertEqual(value, Data(bytes: [AMF3Marker.string.rawValue, /* U29 length of 5*/ 0x0B, /* UTF8 chars */ 0x68, 0x65, 0x6C, 0x6C, 0x6F]))
+    }
+
+    func testEmptyStringEncode() {
+        let value = try! encoder.encode("")
+        XCTAssertEqual(value, Data(bytes: [AMF3Marker.string.rawValue, 0x01]))
+    }
 
     func testDateEncode() {
         let value = try! encoder.encode(Date(timeIntervalSince1970: 1_541_169_100))
@@ -39,11 +39,11 @@ class AMF3EncodingTests: XCTestCase {
 //        XCTAssertEqual(value, Data(bytes: [AMF3Marker.object.rawValue, 0x00, 0x04, 0x64, 0x61, 0x74, 0x65, AMF3Marker.date.rawValue, 0x42, 0x76, 0x6D, 0x4D, 0x63, 0x4E, 0x00, 0x00, /* time zone */ 0x00, 0x00, 0x00, 0x00, 0x09]))
 //    }
 //
-//    func testEncodeArray() {
-//        let stringArray = ["Hello", ",", " ", "World"]
-//        let value = try! encoder.encode(stringArray)
-//        XCTAssertEqual(value, Data(bytes: [AMF3Marker.array.rawValue, 0x00, 0x00, 0x00, 0x04, AMF3Marker.string.rawValue, 0x00, 0x05, 0x48, 0x65, 0x6C, 0x6C, 0x6F, AMF3Marker.string.rawValue, 0x00, 0x01, 0x2C, AMF3Marker.string.rawValue, 0x00, 0x01, 0x20, AMF3Marker.string.rawValue, 0x00, 0x05, 0x57, 0x6F, 0x72, 0x6C, 0x64]))
-//    }
+    func testEncodeArray() {
+        let stringArray = ["Hello", ",", " ", "World"]
+        let value = try! encoder.encode(stringArray)
+        XCTAssertEqual(value, Data(bytes: [AMF3Marker.array.rawValue, 0x09, 0x01, AMF3Marker.string.rawValue, 0x0B, 0x48, 0x65, 0x6C, 0x6C, 0x6F, AMF3Marker.string.rawValue, 0x03, 0x2C, AMF3Marker.string.rawValue, 0x03, 0x20, AMF3Marker.string.rawValue, 0x0B, 0x57, 0x6F, 0x72, 0x6C, 0x64]))
+    }
 
     func testEncodeNil() {
         let nilString: String? = nil
