@@ -14,7 +14,7 @@ extension _AMF3Decoder {
 
                 switch objectMarker {
                 case .object:
-                    return nestedContainersForObject()
+                    return try nestedContainersForObject()
                 default:
                     return [:]
                 }
@@ -49,8 +49,18 @@ extension _AMF3Decoder {
             }
         }
 
-        func nestedContainersForObject() -> [String: AMF3DecodingContainer] {
+        func nestedContainersForObject() throws -> [String: AMF3DecodingContainer] {
             var nestedContainers: [String: AMF3DecodingContainer] = [:]
+
+            let traitsOrRefU29 = UInt32(variableBytes: data[index...])
+
+            if traitsOrRefU29 & 1 == 0 {
+                // TODO: This is a reference, return reference nested containers
+            }
+
+            index += traitsOrRefU29.variableLength ?? 1
+            let traits = try decodeTraits(infoBits: traitsOrRefU29, data: data[index...])
+            referenceTable.decodingObjectTraitsTable.append(traits)
 
             do {
                 var keyLength: UInt16 = try read(UInt16.self)
@@ -66,6 +76,43 @@ extension _AMF3Decoder {
 
             return nestedContainers
         }
+
+        func decodeTraits(infoBits: UInt32, data: Data) throws -> AMF3TraitsInfo {
+            if ((infoBits & 3) == 1) {
+                let traitsIndex = (infoBits >> 2)
+                return referenceTable.decodingObjectTraitsTable[Int(traitsIndex)]
+            }
+            let externalizable = (infoBits & 4) == 4;
+            let dynamic = (infoBits & 8) == 8;
+            let count = infoBits >> 4;
+
+            let singleValueDecodingContainer = SingleValueContainer(
+                data: data,
+                codingPath: codingPath,
+                userInfo: userInfo,
+                referenceTable: referenceTable
+            )
+
+            let className = try singleValueDecodingContainer.decode(String.self)
+
+
+            let properties = try (0..<count).map { (_) -> String in
+                return try singleValueDecodingContainer.decode(String.self)
+            }
+
+            let info = AMF3TraitsInfo.init(
+                className: className,
+                dynamic: dynamic,
+                externalisable: externalizable,
+                count: count,
+                properties: properties
+            )
+
+            index = singleValueDecodingContainer.index
+
+            return info
+        }
+
 
         func readKeyAndObject(keyLength: UInt16) throws -> (key: String, object: AMF3DecodingContainer) {
             let utfData = try read(Int(keyLength))

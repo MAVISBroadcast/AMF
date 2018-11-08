@@ -19,8 +19,8 @@ extension _AMF0Decoder {
         var length: Int? {
             do {
                 let rawFormat = try readByte()
-                if let format = AMF0Marker(rawValue: rawFormat) {
-                    switch format {
+                if let marker = AMF0Marker(rawValue: rawFormat) {
+                    switch marker {
                     case AMF0Marker.boolean:
                         return 1 + 1 // marker + one byte
                     case AMF0Marker.string:
@@ -48,8 +48,8 @@ extension _AMF0Decoder {
 extension _AMF0Decoder.SingleValueContainer: SingleValueDecodingContainer {
     func decodeNil() -> Bool {
         do {
-            let format = try readByte()
-            switch format {
+            let marker = try readByte()
+            switch marker {
             case AMF0Marker.null.rawValue, AMF0Marker.undefined.rawValue:
                 return true
             default:
@@ -61,20 +61,20 @@ extension _AMF0Decoder.SingleValueContainer: SingleValueDecodingContainer {
     }
 
     func decode(_: Bool.Type) throws -> Bool {
-        let format = try readByte()
-        switch format {
+        let marker = try readByte()
+        switch marker {
         case AMF0Marker.boolean.rawValue:
             let booleanValue = try readByte()
             return booleanValue > 0x00
         default:
-            let context = DecodingError.Context(codingPath: codingPath, debugDescription: "Invalid format: \(String(describing: AMF0Marker(rawValue: format)))")
+            let context = DecodingError.Context(codingPath: codingPath, debugDescription: "Invalid marker: \(String(describing: AMF0Marker(rawValue: marker)))")
             throw DecodingError.typeMismatch(Double.self, context)
         }
     }
 
     func decode(_: String.Type) throws -> String {
-        let format = try readByte()
-        switch format {
+        let marker = try readByte()
+        switch marker {
         case AMF0Marker.string.rawValue:
             let length: UInt16 = try read(UInt16.self)
             let utfData = try read(Int(length))
@@ -92,14 +92,14 @@ extension _AMF0Decoder.SingleValueContainer: SingleValueDecodingContainer {
             }
             return string
         default:
-            let context = DecodingError.Context(codingPath: codingPath, debugDescription: "Invalid format: \(String(describing: AMF0Marker(rawValue: format)))")
+            let context = DecodingError.Context(codingPath: codingPath, debugDescription: "Invalid marker: \(String(describing: AMF0Marker(rawValue: marker)))")
             throw DecodingError.typeMismatch(Double.self, context)
         }
     }
 
     func decode(_: Double.Type) throws -> Double {
-        let format = try readByte()
-        switch format {
+        let marker = try readByte()
+        switch marker {
         case AMF0Marker.number.rawValue:
             return try Double(bitPattern: read(UInt64.self))
         case AMF0Marker.date.rawValue:
@@ -107,7 +107,7 @@ extension _AMF0Decoder.SingleValueContainer: SingleValueDecodingContainer {
             let difference = Double(978_307_200) // Difference between 01/01/1970 and 01/01/2001
             return date - difference
         default:
-            let context = DecodingError.Context(codingPath: codingPath, debugDescription: "Invalid format: \(String(describing: AMF0Marker(rawValue: format)))")
+            let context = DecodingError.Context(codingPath: codingPath, debugDescription: "Invalid marker: \(String(describing: AMF0Marker(rawValue: marker)))")
             throw DecodingError.typeMismatch(Double.self, context)
         }
     }

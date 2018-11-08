@@ -13,14 +13,14 @@ extension _AMF0Decoder {
         var data: Data
         var index: Data.Index
         var referenceTable: AMF0DecodingReferenceTable
-        var format: AMF0Marker?
+        var marker: AMF0Marker?
 
         lazy var count: Int? = {
             do {
-                let format = try self.readByte()
-                self.format = AMF0Marker(rawValue: format)
+                let marker = try self.readByte()
+                self.marker = AMF0Marker(rawValue: marker)
 
-                switch format {
+                switch marker {
                 case AMF0Marker.strictArray.rawValue:
                     return Int(try read(UInt32.self))
                 case AMF0Marker.reference.rawValue:
@@ -73,7 +73,7 @@ extension _AMF0Decoder {
         }
 
         func checkCanDecodeValue() throws {
-            guard !isAtEnd || format == .null else {
+            guard !isAtEnd || marker == .null else {
                 throw DecodingError.dataCorruptedError(in: self, debugDescription: "Unexpected end of data")
             }
         }
@@ -96,7 +96,7 @@ extension _AMF0Decoder.UnkeyedContainer: UnkeyedDecodingContainer {
 
         defer { self.currentIndex += 1 }
 
-        if format == .null {
+        if marker == .null {
             let singleValueContainer = _AMF0Decoder.SingleValueContainer(data: data, codingPath: codingPath, userInfo: userInfo, referenceTable: referenceTable)
             let decoder = _AMF0Decoder(data: singleValueContainer.data, referenceTable: referenceTable)
             let value = try T(from: decoder)
@@ -144,15 +144,15 @@ extension _AMF0Decoder.UnkeyedContainer {
 
         let length: Int
         let rawFormat = try readByte()
-        guard let format = AMF0Marker(rawValue: rawFormat) else {
-            let context = DecodingError.Context(codingPath: codingPath, debugDescription: "Invalid format: \(String(describing: AMF0Marker(rawValue: rawFormat)))")
+        guard let marker = AMF0Marker(rawValue: rawFormat) else {
+            let context = DecodingError.Context(codingPath: codingPath, debugDescription: "Invalid marker: \(String(describing: AMF0Marker(rawValue: rawFormat)))")
             throw DecodingError.typeMismatch(Double.self, context)
         }
 
-        if format == .object || format == .strictArray || format == .typedObject || format == .ecmaArray {
+        if marker == .object || marker == .strictArray || marker == .typedObject || marker == .ecmaArray {
         }
 
-        switch format {
+        switch marker {
         case .object, .ecmaArray:
             let container = _AMF0Decoder.KeyedContainer<AnyCodingKey>(data: data.suffix(from: startIndex), codingPath: nestedCodingPath, userInfo: userInfo, referenceTable: referenceTable)
             referenceTable.decodingArray.append(container)
@@ -169,7 +169,7 @@ extension _AMF0Decoder.UnkeyedContainer {
             let reference = Int(try read(UInt16.self))
             return referenceTable.decodingArray[reference]
         default:
-            throw DecodingError.dataCorruptedError(in: self, debugDescription: "Invalid format: \(format)")
+            throw DecodingError.dataCorruptedError(in: self, debugDescription: "Invalid marker: \(marker)")
         }
 
         let range: Range<Data.Index> = startIndex ..< index.advanced(by: length)

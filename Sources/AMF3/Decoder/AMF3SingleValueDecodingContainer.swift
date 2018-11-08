@@ -7,6 +7,7 @@ extension _AMF3Decoder {
         var userInfo: [CodingUserInfoKey: Any]
         var index: Data.Index
         var referenceTable: AMF3DecodingReferenceTable
+        var forcedMarker: AMF3Marker?
 
         init(data: Data, codingPath: [CodingKey], userInfo: [CodingUserInfoKey: Any], referenceTable: AMF3DecodingReferenceTable) {
             self.data = data
@@ -19,8 +20,8 @@ extension _AMF3Decoder {
         var length: Int? {
             do {
                 let rawFormat = try readByte()
-                if let format = AMF3Marker(rawValue: rawFormat) {
-                    switch format {
+                if let marker = AMF3Marker(rawValue: rawFormat) {
+                    switch marker {
                     case AMF3Marker.true:
                         return 1
                     case AMF3Marker.false:
@@ -58,8 +59,8 @@ extension _AMF3Decoder {
 extension _AMF3Decoder.SingleValueContainer: SingleValueDecodingContainer {
     func decodeNil() -> Bool {
         do {
-            let format = try readByte()
-            switch format {
+            let marker = try readByte()
+            switch marker {
             case AMF3Marker.null.rawValue, AMF3Marker.undefined.rawValue:
                 return true
             default:
@@ -71,21 +72,21 @@ extension _AMF3Decoder.SingleValueContainer: SingleValueDecodingContainer {
     }
 
     func decode(_: Bool.Type) throws -> Bool {
-        let format = try readByte()
-        switch format {
+        let marker = try readByte()
+        switch marker {
         case AMF3Marker.true.rawValue:
             return true
         case AMF3Marker.false.rawValue:
             return false
         default:
-            let context = DecodingError.Context(codingPath: codingPath, debugDescription: "Invalid format: \(String(describing: AMF3Marker(rawValue: format)))")
+            let context = DecodingError.Context(codingPath: codingPath, debugDescription: "Invalid marker: \(String(describing: AMF3Marker(rawValue: marker)))")
             throw DecodingError.typeMismatch(Double.self, context)
         }
     }
 
     func decode(_: String.Type) throws -> String {
-        let format = try readByte()
-        switch format {
+        let marker = try readByte()
+        switch marker {
         case AMF3Marker.string.rawValue:
             let potentialReference = UInt32(variableBytes: data[index...])
             let bitShiftedIndexOrLength = Int(potentialReference >> 1)
@@ -103,14 +104,14 @@ extension _AMF3Decoder.SingleValueContainer: SingleValueDecodingContainer {
                 return string
             }
         default:
-            let context = DecodingError.Context(codingPath: codingPath, debugDescription: "Invalid format: \(String(describing: AMF3Marker(rawValue: format)))")
+            let context = DecodingError.Context(codingPath: codingPath, debugDescription: "Invalid marker: \(String(describing: AMF3Marker(rawValue: marker)))")
             throw DecodingError.typeMismatch(Double.self, context)
         }
     }
 
     func decode(_: Double.Type) throws -> Double {
-        let format = try readByte()
-        switch format {
+        let marker = try readByte()
+        switch marker {
         case AMF3Marker.double.rawValue:
             return try Double(bitPattern: read(UInt64.self))
         case AMF3Marker.date.rawValue:
@@ -118,7 +119,7 @@ extension _AMF3Decoder.SingleValueContainer: SingleValueDecodingContainer {
             let difference = Double(978_307_200) // Difference between 01/01/1970 and 01/01/2001
             return date - difference
         default:
-            let context = DecodingError.Context(codingPath: codingPath, debugDescription: "Invalid format: \(String(describing: AMF3Marker(rawValue: format)))")
+            let context = DecodingError.Context(codingPath: codingPath, debugDescription: "Invalid marker: \(String(describing: AMF3Marker(rawValue: marker)))")
             throw DecodingError.typeMismatch(Double.self, context)
         }
     }
@@ -207,6 +208,14 @@ extension _AMF3Decoder.SingleValueContainer: SingleValueDecodingContainer {
         }
 
         return value
+    }
+
+    private func readMarker() throws -> AMF3Marker {
+        if let forcedMarker = forcedMarker {
+            return forcedMarker
+        }
+
+
     }
 }
 

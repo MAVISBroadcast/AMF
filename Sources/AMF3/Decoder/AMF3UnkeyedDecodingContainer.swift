@@ -13,14 +13,14 @@ extension _AMF3Decoder {
         var data: Data
         var index: Data.Index
         var referenceTable: AMF3DecodingReferenceTable
-        var format: AMF3Marker?
+        var marker: AMF3Marker?
 
         lazy var count: Int? = {
             do {
-                let format = try self.readByte()
-                self.format = AMF3Marker(rawValue: format)
+                let marker = try self.readByte()
+                self.marker = AMF3Marker(rawValue: marker)
 
-                switch format {
+                switch marker {
                 case AMF3Marker.array.rawValue:
                     let potentialReference = UInt32(variableBytes: data[index...])
                     let bitShiftedIndexOrLength = Int(potentialReference >> 1)
@@ -83,7 +83,7 @@ extension _AMF3Decoder {
         }
 
         func checkCanDecodeValue() throws {
-            guard !isAtEnd || format == .null else {
+            guard !isAtEnd || marker == .null else {
                 throw DecodingError.dataCorruptedError(in: self, debugDescription: "Unexpected end of data")
             }
         }
@@ -106,7 +106,7 @@ extension _AMF3Decoder.UnkeyedContainer: UnkeyedDecodingContainer {
 
         defer { self.currentIndex += 1 }
 
-        if format == .null {
+        if marker == .null {
             let singleValueContainer = _AMF3Decoder.SingleValueContainer(data: data, codingPath: codingPath, userInfo: userInfo, referenceTable: referenceTable)
             let decoder = _AMF3Decoder(data: singleValueContainer.data, referenceTable: referenceTable)
             let value = try T(from: decoder)
@@ -154,12 +154,12 @@ extension _AMF3Decoder.UnkeyedContainer {
 
         let length: Int
         let rawFormat = try readByte()
-        guard let format = AMF3Marker(rawValue: rawFormat) else {
-            let context = DecodingError.Context(codingPath: codingPath, debugDescription: "Invalid format: \(String(describing: AMF3Marker(rawValue: rawFormat)))")
+        guard let marker = AMF3Marker(rawValue: rawFormat) else {
+            let context = DecodingError.Context(codingPath: codingPath, debugDescription: "Invalid marker: \(String(describing: AMF3Marker(rawValue: rawFormat)))")
             throw DecodingError.typeMismatch(Double.self, context)
         }
 
-        switch format {
+        switch marker {
         case .object:
             let container = _AMF3Decoder.KeyedContainer<AnyCodingKey>(data: data.suffix(from: startIndex), codingPath: nestedCodingPath, userInfo: userInfo, referenceTable: referenceTable)
             referenceTable.decodingComplexObjectsTable.append(container)
@@ -175,7 +175,7 @@ extension _AMF3Decoder.UnkeyedContainer {
             let variableLength = variableUInt.variableLength!
             length = variableLength + Int(variableUInt >> 1) // length of variable int + actual length of string
         default:
-            throw DecodingError.dataCorruptedError(in: self, debugDescription: "Invalid format: \(format)")
+            throw DecodingError.dataCorruptedError(in: self, debugDescription: "Invalid marker: \(marker)")
         }
 
         let range: Range<Data.Index> = startIndex ..< index.advanced(by: length)

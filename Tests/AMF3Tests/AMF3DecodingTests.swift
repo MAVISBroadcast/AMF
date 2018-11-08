@@ -41,11 +41,11 @@ class AMF3DecodingTests: XCTestCase {
         XCTAssertEqual(value, "")
     }
 
-//    func testDictionary() {
-//        let data = Data(bytes: [AMF3Marker.object.rawValue, /* string length: 1 */ 0x00, 0x01, /* a */ 0x61, AMF3Marker.string.rawValue, /* string length: 1 */ 0x00, 0x01, /* a */ 0x61, /* empty UTF-8 */ 0x00, 0x00])
-//        let value = try! decoder.decode([String: String].self, from: data)
-//        XCTAssertEqual(value, ["a": "a"])
-//    }
+    func testDictionary() {
+        let data = Data(bytes: [AMF3Marker.object.rawValue, 0x0B, 0x01, 0x09, 0x73, 0x70, 0x61, 0x6D, 0x06, 0x09, 0x65, 0x67, 0x67, 0x73, 0x01])
+        let value = try! decoder.decode([String: String].self, from: data)
+        XCTAssertEqual(value, ["spam": "eggs"])
+    }
 
     func testEmptyArray() {
         let data = Data(bytes: [AMF3Marker.array.rawValue, /* count: 0 */ 0x00, 0x00, 0x00, 0x00])

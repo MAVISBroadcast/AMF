@@ -10,11 +10,11 @@ import Foundation
 class AMF3DecodingReferenceTable {
     var decodingStringsTable: [String] = []
     var decodingComplexObjectsTable: [AMF3DecodingContainer] = []
-    var decodingObjectTraitsTable: [AMF3DecodingContainer] = []
+    var decodingObjectTraitsTable: [AMF3TraitsInfo] = []
 }
 
 class AMF3EncodingReferenceTable {
     var encodingStringsTable: [String] = []
     var encodingComplexObjectsTable: [AMF3EncodingContainer] = []
-    var encodingObjectTraitsTable: [AMF3EncodingContainer] = []
+    var encodingObjectTraitsTable: [AMF3TraitsInfo] = []
 }
