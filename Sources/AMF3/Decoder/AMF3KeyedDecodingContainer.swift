@@ -63,12 +63,23 @@ extension _AMF3Decoder {
             referenceTable.decodingObjectTraitsTable.append(traits)
 
             do {
-                var keyLength: UInt16 = try read(UInt16.self)
-                while keyLength > 0 {
-                    let keyAndObject = try readKeyAndObject(keyLength: keyLength)
-                    nestedContainers[keyAndObject.key] = keyAndObject.object
+                let singleValueDecodingContainer = SingleValueContainer(
+                    data: data[index...],
+                    codingPath: codingPath,
+                    userInfo: userInfo,
+                    referenceTable: referenceTable
+                )
+                singleValueDecodingContainer.forcedMarker = .string
+                var key = try singleValueDecodingContainer.decode(String.self)
 
-                    keyLength = try read(UInt16.self)
+                index = singleValueDecodingContainer.index
+
+                while key.isEmpty == false {
+                    let object = try readObject(key: key)
+                    nestedContainers[key] = object
+                    singleValueDecodingContainer.index = index
+
+                    key = (try? singleValueDecodingContainer.decode(String.self)) ?? ""
                 }
             } catch {
                 fatalError("\(error)") // FIXME:
@@ -77,7 +88,7 @@ extension _AMF3Decoder {
             return nestedContainers
         }
 
-        func decodeTraits(infoBits: UInt32, data: Data) throws -> AMF3TraitsInfo {
+        private func decodeTraits(infoBits: UInt32, data: Data) throws -> AMF3TraitsInfo {
             if ((infoBits & 3) == 1) {
                 let traitsIndex = (infoBits >> 2)
                 return referenceTable.decodingObjectTraitsTable[Int(traitsIndex)]
@@ -92,7 +103,7 @@ extension _AMF3Decoder {
                 userInfo: userInfo,
                 referenceTable: referenceTable
             )
-
+            singleValueDecodingContainer.forcedMarker = .string
             let className = try singleValueDecodingContainer.decode(String.self)
 
 
@@ -113,31 +124,8 @@ extension _AMF3Decoder {
             return info
         }
 
+        private func readObject(key: String) throws -> AMF3DecodingContainer {
 
-        func readKeyAndObject(keyLength: UInt16) throws -> (key: String, object: AMF3DecodingContainer) {
-            let utfData = try read(Int(keyLength))
-            guard let key = String(data: utfData, encoding: .utf8) else {
-                let context = DecodingError.Context(codingPath: codingPath, debugDescription: "Cannot load string")
-                throw DecodingError.dataCorrupted(context)
-            }
-
-            let unkeyedContainer = UnkeyedContainer(
-                data: data[self.index...],
-                codingPath: codingPath,
-                userInfo: userInfo,
-                referenceTable: referenceTable
-            )
-
-            let keyedContainer = KeyedContainer(
-                data: data[self.index...],
-                codingPath: codingPath,
-                userInfo: userInfo,
-                referenceTable: referenceTable
-            )
-
-            let containers = unkeyedContainer.nestedContainers
-            let keyedContainerNestedContainers = keyedContainer.nestedContainers
-            if containers.isEmpty && keyedContainerNestedContainers.isEmpty {
                 let singleValueContainer = SingleValueContainer(
                     data: data[self.index...],
                     codingPath: codingPath,
@@ -146,16 +134,7 @@ extension _AMF3Decoder {
                 )
                 let length = singleValueContainer.length ?? 0
                 index += length
-                return (key, singleValueContainer)
-            } else if !containers.isEmpty {
-                unkeyedContainer.codingPath += [AnyCodingKey(stringValue: key)!]
-                index = unkeyedContainer.index
-                return (key, unkeyedContainer)
-            } else {
-                keyedContainer.codingPath += [AnyCodingKey(stringValue: key)!]
-                index = keyedContainer.index
-                return (key, keyedContainer)
-            }
+                return singleValueContainer
         }
     }
 }
