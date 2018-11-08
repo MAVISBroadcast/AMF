@@ -15,6 +15,7 @@ extension _AMF3Encoder {
         var codingPath: [CodingKey]
         var userInfo: [CodingUserInfoKey: Any]
         var referenceTable: AMF3EncodingReferenceTable
+        var supressMarkerEncoding: Bool = false
 
         init(codingPath: [CodingKey], userInfo: [CodingUserInfoKey: Any], referenceTable: AMF3EncodingReferenceTable) {
             self.codingPath = codingPath
@@ -26,14 +27,14 @@ extension _AMF3Encoder {
 
 extension _AMF3Encoder.SingleValueContainer: SingleValueEncodingContainer {
     func encodeNil() throws {
-        data.append(AMF3Marker.null.rawValue)
+        encodeMarker(marker: .null)
     }
 
     func encode(_ value: Bool) throws {
         if value {
-            data.append(AMF3Marker.true.rawValue)
+            encodeMarker(marker: .true)
         } else {
-            data.append(AMF3Marker.false.rawValue)
+            encodeMarker(marker: .false)
         }
     }
 
@@ -44,8 +45,7 @@ extension _AMF3Encoder.SingleValueContainer: SingleValueEncodingContainer {
         }
         let length = stringData.count
         if let length = UInt32(exactly: length) {
-
-            data.append(AMF3Marker.string.rawValue)
+            encodeMarker(marker: .string)
             let bitShiftedLength = (length << 1) | 1
             data.append(contentsOf: try bitShiftedLength.variableBytes())
             data.append(contentsOf: stringData)
@@ -56,7 +56,7 @@ extension _AMF3Encoder.SingleValueContainer: SingleValueEncodingContainer {
     }
 
     func encode(_ value: Double) throws {
-        data.append(AMF3Marker.double.rawValue)
+        encodeMarker(marker: .double)
         data.append(contentsOf: value.bitPattern.bytes())
     }
 
@@ -120,12 +120,23 @@ extension _AMF3Encoder.SingleValueContainer: SingleValueEncodingContainer {
         }
     }
 
+    func encode(_ value: Data) throws {
+        data.append(contentsOf: value)
+    }
+
     func encode(_ value: Date) throws {
         try checkCanEncode(value: value)
         defer { self.canEncodeNewValue = false }
 
-        data.append(AMF3Marker.date.rawValue)
+        encodeMarker(marker: .date)
         data.append(contentsOf: (value.timeIntervalSince1970 * 1000).bitPattern.bytes())
+    }
+
+    func encodeMarker(marker: AMF3Marker) {
+        guard supressMarkerEncoding == false else {
+            return
+        }
+        data.append(marker.rawValue)
     }
 }
 

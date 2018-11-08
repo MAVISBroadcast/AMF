@@ -7,11 +7,10 @@
 
 import Foundation
 
-struct AMF3TraitsInfo {
+struct AMF3TraitsInfo: Codable, Equatable {
     let className: String
     let dynamic: Bool
     let externalisable: Bool
     let count: UInt32
     let properties: [String]
-
 }

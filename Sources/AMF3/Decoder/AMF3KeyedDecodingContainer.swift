@@ -61,30 +61,27 @@ extension _AMF3Decoder {
             index += traitsOrRefU29.variableLength ?? 1
             let traits = try decodeTraits(infoBits: traitsOrRefU29, data: data[index...])
             referenceTable.decodingObjectTraitsTable.append(traits)
-
-            do {
-                let singleValueDecodingContainer = SingleValueContainer(
-                    data: data[index...],
-                    codingPath: codingPath,
-                    userInfo: userInfo,
-                    referenceTable: referenceTable
-                )
-                singleValueDecodingContainer.forcedMarker = .string
-                var key = try singleValueDecodingContainer.decode(String.self)
-
+            
+            let singleValueDecodingContainer = SingleValueContainer(
+                data: data[index...],
+                codingPath: codingPath,
+                userInfo: userInfo,
+                referenceTable: referenceTable
+            )
+            singleValueDecodingContainer.forcedMarker = .string
+            var key = try singleValueDecodingContainer.decode(String.self)
+            
+            index = singleValueDecodingContainer.index
+            
+            while key.isEmpty == false {
+                let object = try readObject(key: key)
+                nestedContainers[key] = object
+                singleValueDecodingContainer.index = index
+                
+                key = (try? singleValueDecodingContainer.decode(String.self)) ?? ""
                 index = singleValueDecodingContainer.index
-
-                while key.isEmpty == false {
-                    let object = try readObject(key: key)
-                    nestedContainers[key] = object
-                    singleValueDecodingContainer.index = index
-
-                    key = (try? singleValueDecodingContainer.decode(String.self)) ?? ""
-                }
-            } catch {
-                fatalError("\(error)") // FIXME:
             }
-
+            
             return nestedContainers
         }
 
@@ -125,16 +122,45 @@ extension _AMF3Decoder {
         }
 
         private func readObject(key: String) throws -> AMF3DecodingContainer {
+            let unkeyedContainer = UnkeyedContainer(
+                data: data[self.index...],
+                codingPath: codingPath,
+                userInfo: userInfo,
+                referenceTable: referenceTable
+            )
 
+            let keyedContainer = KeyedContainer(
+                data: data[self.index...],
+                codingPath: codingPath,
+                userInfo: userInfo,
+                referenceTable: referenceTable
+            )
+
+            let containers = unkeyedContainer.nestedContainers
+            let keyedContainerNestedContainers = keyedContainer.nestedContainers
+            if containers.isEmpty && keyedContainerNestedContainers.isEmpty {
                 let singleValueContainer = SingleValueContainer(
                     data: data[self.index...],
                     codingPath: codingPath,
                     userInfo: userInfo,
                     referenceTable: referenceTable
                 )
-                let length = singleValueContainer.length ?? 0
-                index += length
-                return singleValueContainer
+                if let length = singleValueContainer.length {
+                    index += length
+                    return singleValueContainer
+                } else {
+                    let context = DecodingError.Context(codingPath: codingPath, debugDescription: "cannot decode key: \(key)")
+                    throw DecodingError.typeMismatch(Any?.self, context)
+                }
+             } else if !containers.isEmpty {
+                unkeyedContainer.codingPath += [AnyCodingKey(stringValue: key)!]
+                index = unkeyedContainer.index
+                return unkeyedContainer
+            } else {
+                keyedContainer.codingPath += [AnyCodingKey(stringValue: key)!]
+                index = keyedContainer.index
+                return keyedContainer
+            }
         }
     }
 }

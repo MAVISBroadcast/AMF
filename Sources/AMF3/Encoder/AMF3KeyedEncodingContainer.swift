@@ -17,6 +17,39 @@ extension _AMF3Encoder {
             self.userInfo = userInfo
             self.referenceTable = referenceTable
         }
+
+        func dataFromTraits(_ traits: AMF3TraitsInfo) throws -> Data {
+            if let index = referenceTable.encodingObjectTraitsTable.firstIndex(of: traits) {
+                // TODO: encode traits index
+                fatalError("Not implemented")
+            }
+            var infoBits = UInt32(0b11) // Not a reference, nor traits reference
+            if traits.externalisable {
+                fatalError("Not implemented")
+            }
+            if traits.dynamic {
+                infoBits = infoBits | 0b1000
+            }
+            infoBits = infoBits | UInt32(traits.properties.count << 4)
+
+            let singleValueContainer = SingleValueContainer(
+                codingPath: codingPath,
+                userInfo: userInfo,
+                referenceTable: referenceTable
+            )
+            singleValueContainer.supressMarkerEncoding = true
+
+            try singleValueContainer.encode(Data(bytes: infoBits.variableBytes()))
+
+            try singleValueContainer.encode(traits.className)
+
+
+            try traits.properties.forEach { (property) in
+                try singleValueContainer.encode(property)
+            }
+
+            return singleValueContainer.data
+        }
     }
 }
 
@@ -66,16 +99,32 @@ extension _AMF3Encoder.KeyedContainer: AMF3EncodingContainer {
 
         data.append(AMF3Marker.object.rawValue)
 
+        let traitsInfo = AMF3TraitsInfo(
+            className: "",
+            dynamic: true,
+            externalisable: false,
+            count: 0,
+            properties: []
+        )
+        data.append(try! dataFromTraits(traitsInfo))
+
         for (key, container) in storage {
-            let stringKey = key.stringValue
-            let utfData = stringKey.data(using: .utf8)!
-            data.append(contentsOf: UInt16(utfData.count).bytes())
-            data.append(utfData)
+            if traitsInfo.dynamic {
+                let singleValueContainer = _AMF3Encoder.SingleValueContainer(
+                    codingPath: codingPath,
+                    userInfo: userInfo,
+                    referenceTable: referenceTable
+                )
+                singleValueContainer.supressMarkerEncoding = true
+                try! singleValueContainer.encode(key.stringValue)
+                data.append(singleValueContainer.data)
+            }
+
             data.append(container.data)
         }
 
-        let emptyKey = UInt16(0).bytes()
-        data.append(contentsOf: emptyKey)
+        let emptyStringKey = UInt8(1)
+        data.append(emptyStringKey)
 
         return data
     }

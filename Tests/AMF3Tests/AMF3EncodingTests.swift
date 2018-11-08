@@ -33,12 +33,11 @@ class AMF3EncodingTests: XCTestCase {
         XCTAssertEqual(value, Data(bytes: [AMF3Marker.date.rawValue, 0x42, 0x76, 0x6D, 0x4D, 0x63, 0x4E, 0x00, 0x00]))
     }
 
-//    func testDateObjectEncode() {
-//        let date = ObjectWithDate(date: Date(timeIntervalSince1970: 1_541_169_100))
-//        let value = try! encoder.encode(date)
-//        XCTAssertEqual(value, Data(bytes: [AMF3Marker.object.rawValue, 0x00, 0x04, 0x64, 0x61, 0x74, 0x65, AMF3Marker.date.rawValue, 0x42, 0x76, 0x6D, 0x4D, 0x63, 0x4E, 0x00, 0x00, /* time zone */ 0x00, 0x00, 0x00, 0x00, 0x09]))
-//    }
-//
+    func testDictionary() {
+        let value = try! encoder.encode(["spam": "eggs"])
+        XCTAssertEqual(value, Data(bytes: [AMF3Marker.object.rawValue, 0x0B, 0x01, 0x09, 0x73, 0x70, 0x61, 0x6D, 0x06, 0x09, 0x65, 0x67, 0x67, 0x73, 0x01]))
+    }
+
     func testEncodeArray() {
         let stringArray = ["Hello", ",", " ", "World"]
         let value = try! encoder.encode(stringArray)
@@ -54,11 +53,11 @@ class AMF3EncodingTests: XCTestCase {
     static var allTests = [
         ("testBoolEncode", testBoolEncode),
         ("testDoubleEncode", testDoubleEncode),
-//        ("testStringEncode", testStringEncode),
-//        ("testEmptyStringEncode", testEmptyStringEncode),
+        ("testStringEncode", testStringEncode),
+        ("testEmptyStringEncode", testEmptyStringEncode),
         ("testDateEncode", testDateEncode),
-//        ("testDateObjectEncode", testDateObjectEncode),
-//        ("testEncodeArray", testEncodeArray),
+        ("testDictionary", testDictionary),
+        ("testEncodeArray", testEncodeArray),
         ("testEncodeNil", testEncodeNil),
     ]
 

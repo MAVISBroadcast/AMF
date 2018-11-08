@@ -47,6 +47,12 @@ class AMF3DecodingTests: XCTestCase {
         XCTAssertEqual(value, ["spam": "eggs"])
     }
 
+    func testBiggerDictionary() {
+        let data = Data(bytes: [AMF3Marker.object.rawValue, 0x0B, 0x01, 0x09, 0x73, 0x70, 0x61, 0x6D, 0x06, 0x09, 0x65, 0x67, 0x67, 0x73, 0x09, 0x65, 0x67, 0x67, 0x73, 0x06, 0x09, 0x73, 0x70, 0x61, 0x6D, 0x01])
+        let value = try! decoder.decode([String: String].self, from: data)
+        XCTAssertEqual(value, ["spam": "eggs", "eggs": "spam"])
+    }
+
     func testEmptyArray() {
         let data = Data(bytes: [AMF3Marker.array.rawValue, /* count: 0 */ 0x00, 0x00, 0x00, 0x00])
         let value = try! decoder.decode([String].self, from: data)
@@ -60,9 +66,9 @@ class AMF3DecodingTests: XCTestCase {
     }
 
     func testDictionaryWithArrayInIt() {
-        let data = Data(bytes: [AMF3Marker.object.rawValue, /* string length: 1 */ 0x00, 0x01, /* a */ 0x61, AMF3Marker.array.rawValue, /* count: 1 */ 0x00, 0x00, 0x00, 0x01, AMF3Marker.string.rawValue, /* big endian length of 5*/ 0x00, 0x05, /* UTF8 chars */ 0x68, 0x65, 0x6C, 0x6C, 0x6F, /* empty UTF-8 */ 0x00, 0x00])
+        let data = Data(bytes: [AMF3Marker.object.rawValue, 0x0B, 0x01, 0x09, 0x73, 0x70, 0x61, 0x6D, AMF3Marker.array.rawValue, 0x09, 0x01, AMF3Marker.string.rawValue, 0x0B, 0x48, 0x65, 0x6C, 0x6C, 0x6F, AMF3Marker.string.rawValue, 0x03, 0x2C, AMF3Marker.string.rawValue, 0x03, 0x20, AMF3Marker.string.rawValue, 0x0B, 0x57, 0x6F, 0x72, 0x6C, 0x64, 0x01])
         let value = try! decoder.decode([String: [String]].self, from: data)
-        XCTAssertEqual(value, ["a": ["hello"]])
+        XCTAssertEqual(value, ["spam": ["Hello", ",", " ", "World"]])
     }
 
     func testDecodeNil() {
@@ -84,10 +90,10 @@ class AMF3DecodingTests: XCTestCase {
         ("testDecodeString", testDecodeString),
         ("testDecodeEmoji", testDecodeEmoji),
         ("testDecodeEmptyString", testDecodeEmptyString),
-//        ("testDictionary", testDictionary),
+        ("testDictionary", testDictionary),
         ("testEmptyArray", testEmptyArray),
         ("testArray", testArray),
-//        ("testDictionaryWithArrayInIt", testDictionaryWithArrayInIt),
+        ("testDictionaryWithArrayInIt", testDictionaryWithArrayInIt),
         ("testDecodeNil", testDecodeNil),
         ("testDate", testDate),
     ]
