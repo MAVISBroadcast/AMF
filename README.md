@@ -1,12 +1,14 @@
 # Swift AMF Encoder/Decoder, using Codable.
 
-This is an incomplete Swift implementation of Action Message Format Encoding and Decoding. Originally built for use in a Swift RTMP implementation in the video broadcast space.
+This is an incomplete/WIP Swift implementation of Action Message Format Encoding and Decoding. Originally built for use in a Swift RTMP implementation in the video broadcast space.
 
 Making AMF parse into Swift Codable objects/structs is quite limiting, inside the confines of the Swift type system and how custom Codable Encoder/Decoders needs to be written to work. It is almost impossible not to loose information/order when encoding in and out of AMF.
 
 A good example of Decoding working (for AMF0) is found in the `testAMFObject()` test inside the `AMF0DecodingTests`, which uses [real AMF0](https://en.wikipedia.org/wiki/Action_Message_Format) in an RTMP situation. Round trip tests demonstrate encoding too.
 
 This implementation will get more battled/performance tested once deployed with an RTMP implementation.
+
+Currently running at an _OK_ >60% coverage
 
 ##TODO:
 
