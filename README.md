@@ -10,7 +10,7 @@ This implementation will get more battled/performance tested once deployed with 
 
 Currently running at an _OK_ >60% coverage
 
-##TODO:
+## TODO:
 
 ### Both
 - [ ] Refactor away side effecty `lazy var`s to bubble up `throws` a bit better
@@ -35,5 +35,5 @@ Currently running at an _OK_ >60% coverage
 - [ ] RTMP based tests
 - [ ] More tests
 
-#THANKS!
+# THANKS!
 Massive thanks to [@mattt](https://twitter.com/mattt) for his [Flight School Guide to Swift Codable](https://gumroad.com/l/codable), specifically his [MessagePack implementation](https://github.com/Flight-School/MessagePack) and [DIY Codable Encoder / Decoder Kit](https://github.com/Flight-School/Codable-DIY-Kit) both of which were invaluable in understanding how to write a custom Codable Encoder/Decoder and to the existing (but rather dated) [CocoaAMF](https://github.com/nesium/cocoa-amf) for getting my head around AMF (especially AMF3 - which is totally nutty - with it's proprietary Unsigned29Int that itself is bit shifted all over the place).
