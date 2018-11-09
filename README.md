@@ -1,5 +1,7 @@
 # Swift AMF Encoder/Decoder, using Codable.
 
+[![Build Status](https://travis-ci.org/MAVISBroadcast/AMF.svg?branch=master)](https://travis-ci.org/MAVISBroadcast/AMF)
+
 This is an incomplete/WIP Swift implementation of Action Message Format Encoding and Decoding. Originally built for use in a Swift RTMP implementation in the video broadcast space.
 
 Making AMF parse into Swift Codable objects/structs is quite limiting, inside the confines of the Swift type system and how custom Codable Encoder/Decoders needs to be written to work. It is almost impossible not to loose information/order when encoding in and out of AMF.
