@@ -11,7 +11,7 @@ extension FixedWidthInteger {
     init(bytes: [UInt8], endianness: Endianness) {
         self = bytes.withUnsafeBufferPointer {
             $0.baseAddress!.withMemoryRebound(to: Self.self, capacity: 1) {
-                switch Endianness {
+                switch endianness {
                 case .big:
                     return $0.pointee.bigEndian
                 case .little:

@@ -98,6 +98,6 @@ extension AMF0DecodingContainer {
     func read<T>(_: T.Type, endianness: Endianness = .big) throws -> T where T: FixedWidthInteger {
         let stride = MemoryLayout<T>.stride
         let bytes = [UInt8](try read(stride))
-        return T(bytes: bytes, endianness: Endianness)
+        return T(bytes: bytes, endianness: endianness)
     }
 }
