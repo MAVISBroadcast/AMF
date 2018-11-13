@@ -8,10 +8,10 @@
 import Foundation
 
 extension FixedWidthInteger {
-    init(bytes: [UInt8], endianess: Endianess) {
+    init(bytes: [UInt8], endianness: Endianness) {
         self = bytes.withUnsafeBufferPointer {
             $0.baseAddress!.withMemoryRebound(to: Self.self, capacity: 1) {
-                switch endianess {
+                switch Endianness {
                 case .big:
                     return $0.pointee.bigEndian
                 case .little:
@@ -21,10 +21,10 @@ extension FixedWidthInteger {
         }
     }
 
-    func bytes(endianess: Endianess = .big) -> [UInt8] {
+    func bytes(Endianness: Endianness = .big) -> [UInt8] {
         let capacity = MemoryLayout<Self>.size
         var mutableValue: Self = {
-            switch endianess {
+            switch Endianness {
             case .big:
                 return self.bigEndian
             case .little:

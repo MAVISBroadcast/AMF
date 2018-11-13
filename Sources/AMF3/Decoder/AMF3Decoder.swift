@@ -95,9 +95,9 @@ extension AMF3DecodingContainer {
         return data[self.index ..< nextIndex]
     }
 
-    func read<T>(_: T.Type, endianess: Endianess = .big) throws -> T where T: FixedWidthInteger {
+    func read<T>(_: T.Type, endianness: Endianness = .big) throws -> T where T: FixedWidthInteger {
         let stride = MemoryLayout<T>.stride
         let bytes = [UInt8](try read(stride))
-        return T(bytes: bytes, endianess: endianess)
+        return T(bytes: bytes, endianness: Endianness)
     }
 }
