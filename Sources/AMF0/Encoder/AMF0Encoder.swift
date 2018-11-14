@@ -4,9 +4,11 @@ import Foundation
 
  */
 public class AMF0Encoder {
-    static let EncodeAsECMAArray: CodingUserInfoKey = CodingUserInfoKey(rawValue: "EncodeAsECMAArray")!
+    public static let EncodeAsECMAArray: CodingUserInfoKey = CodingUserInfoKey(rawValue: "EncodeAsECMAArray")!
 
-    func encode(_ value: Encodable) throws -> Data {
+    public init() {}
+
+    public func encode(_ value: Encodable) throws -> Data {
         let encoder = _AMF0Encoder()
 
         switch value {
