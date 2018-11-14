@@ -4,7 +4,7 @@ import Foundation
 
  */
 public class AMF3Encoder {
-    func encode(_ value: Encodable) throws -> Data {
+    public func encode(_ value: Encodable) throws -> Data {
         let encoder = _AMF3Encoder()
 
         switch value {
