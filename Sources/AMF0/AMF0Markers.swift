@@ -5,9 +5,7 @@
 //  Created by James Hartt on 30/10/2018.
 //
 
-import Foundation
-
-enum AMF0Marker: UInt8 {
+public enum AMF0Marker: UInt8 {
     case number = 0x00
     case boolean = 0x01
     case string = 0x02

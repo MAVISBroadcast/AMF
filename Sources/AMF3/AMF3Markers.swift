@@ -5,9 +5,7 @@
 //  Created by James Hartt on 30/10/2018.
 //
 
-import Foundation
-
-enum AMF3Marker: UInt8 {
+public enum AMF3Marker: UInt8 {
     case undefined = 0x00
     case null = 0x01
     case `false` = 0x02
