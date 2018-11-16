@@ -9,7 +9,9 @@ public final class AMF0Decoder {
     #endif
     public var finishedIndex: Data.Index = 0
 
-    func decode<T>(_: T.Type, from data: Data) throws -> T where T: Decodable {
+    public init() {}
+
+    public func decode<T>(_: T.Type, from data: Data) throws -> T where T: Decodable {
         let decoder = _AMF0Decoder(data: data, referenceTable: AMF0DecodingReferenceTable())
         #if DEBUG
             _decoder = decoder
