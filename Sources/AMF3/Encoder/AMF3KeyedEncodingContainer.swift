@@ -19,7 +19,7 @@ extension _AMF3Encoder {
         }
 
         func dataFromTraits(_ traits: AMF3TraitsInfo) throws -> Data {
-            if let index = referenceTable.encodingObjectTraitsTable.firstIndex(of: traits) {
+            if let _ = referenceTable.encodingObjectTraitsTable.firstIndex(of: traits) {
                 // TODO: encode traits index
                 fatalError("Not implemented")
             }
