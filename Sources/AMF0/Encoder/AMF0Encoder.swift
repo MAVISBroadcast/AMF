@@ -5,11 +5,16 @@ import Foundation
  */
 public class AMF0Encoder {
     public static let EncodeAsECMAArray: CodingUserInfoKey = CodingUserInfoKey(rawValue: "EncodeAsECMAArray")!
+    public static let EncodeStringsAsBoolsIfTrueOrFalseInECMAArray: CodingUserInfoKey = CodingUserInfoKey(rawValue: "EncodeStringsAsBoolsIfTrueOrFalseInECMAArray")!
+    public static let EncodeStringsAsNumbersIfDoublesInECMAArray: CodingUserInfoKey = CodingUserInfoKey(rawValue: "EncodeStringsAsNumbersIfDoublesInECMAArray")!
+
+    var userInfo: [CodingUserInfoKey: Any] = [:]
 
     public init() {}
 
     public func encode(_ value: Encodable) throws -> Data {
         let encoder = _AMF0Encoder()
+        encoder.userInfo = userInfo
 
         switch value {
         case let data as Data:

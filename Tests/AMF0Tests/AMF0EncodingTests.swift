@@ -46,7 +46,9 @@ class AMF0EncodingTests: XCTestCase {
     }
 
     func testEncodeECMAArray() {
-        let dictionary = ["a": "1", "b": "2"]
+        let dictionary = ["a": "1", "b": "2", "c": "false", "d": "true"]
+        encoder.userInfo[AMF0Encoder.EncodeStringsAsBoolsIfTrueOrFalseInECMAArray] = true
+        encoder.userInfo[AMF0Encoder.EncodeStringsAsNumbersIfDoublesInECMAArray] = true
         let value = try! encoder.encode(dictionary)
         XCTAssertEqual(value[0], AMF0Marker.ecmaArray.rawValue)
     }

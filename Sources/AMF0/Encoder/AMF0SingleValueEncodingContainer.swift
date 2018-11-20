@@ -33,6 +33,13 @@ extension _AMF0Encoder.SingleValueContainer: SingleValueEncodingContainer {
     }
 
     func encode(_ value: String) throws {
+        if let encodeAsECMAArray = userInfo[AMF0Encoder.EncodeAsECMAArray] as? Bool, encodeAsECMAArray {
+            if let doubleValue = Double(value), let encodeAsDouble = userInfo[AMF0Encoder.EncodeStringsAsNumbersIfDoublesInECMAArray] as? Bool, encodeAsDouble {
+                return try encode(doubleValue)
+            } else if let boolValue = Bool(value), let encodeAsBool = userInfo[AMF0Encoder.EncodeStringsAsBoolsIfTrueOrFalseInECMAArray] as? Bool, encodeAsBool {
+                return try encode(boolValue)
+            }
+        }
         guard let stringData = value.data(using: .utf8) else {
             let context = EncodingError.Context(codingPath: codingPath, debugDescription: "Cannot encode string using UTF-8 encoding.")
             throw EncodingError.invalidValue(value, context)
@@ -112,6 +119,7 @@ extension _AMF0Encoder.SingleValueContainer: SingleValueEncodingContainer {
             try encode(date)
         default:
             let encoder = _AMF0Encoder()
+            encoder.userInfo = userInfo
             try value.encode(to: encoder)
             data.append(encoder.data)
         }
