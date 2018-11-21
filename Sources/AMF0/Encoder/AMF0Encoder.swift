@@ -8,7 +8,7 @@ public class AMF0Encoder {
     public static let EncodeStringsAsBoolsIfTrueOrFalseInECMAArray: CodingUserInfoKey = CodingUserInfoKey(rawValue: "EncodeStringsAsBoolsIfTrueOrFalseInECMAArray")!
     public static let EncodeStringsAsNumbersIfDoublesInECMAArray: CodingUserInfoKey = CodingUserInfoKey(rawValue: "EncodeStringsAsNumbersIfDoublesInECMAArray")!
 
-    var userInfo: [CodingUserInfoKey: Any] = [:]
+    public var userInfo: [CodingUserInfoKey: Any] = [:]
 
     public init() {}
 
