@@ -123,18 +123,18 @@ extension UInt32_UInt29ToDataTests {
 }
 
 #if !os(macOS)
-public func __allTests() -> [XCTestCaseEntry] {
-    return [
-        testCase(AMF0DecodingTests.__allTests),
-        testCase(AMF0EncodingTests.__allTests),
-        testCase(AMF0PerformanceTests.__allTests),
-        testCase(AMF0RoundTripTests.__allTests),
-        testCase(AMF3DecodingTests.__allTests),
-        testCase(AMF3EncodingTests.__allTests),
-        testCase(AMF3PerformanceTests.__allTests),
-        testCase(AMF3RoundTripTests.__allTests),
-        testCase(UInt32_UInt29FromDataTests.__allTests),
-        testCase(UInt32_UInt29ToDataTests.__allTests),
-    ]
-}
+    public func __allTests() -> [XCTestCaseEntry] {
+        return [
+            testCase(AMF0DecodingTests.__allTests),
+            testCase(AMF0EncodingTests.__allTests),
+            testCase(AMF0PerformanceTests.__allTests),
+            testCase(AMF0RoundTripTests.__allTests),
+            testCase(AMF3DecodingTests.__allTests),
+            testCase(AMF3EncodingTests.__allTests),
+            testCase(AMF3PerformanceTests.__allTests),
+            testCase(AMF3RoundTripTests.__allTests),
+            testCase(UInt32_UInt29FromDataTests.__allTests),
+            testCase(UInt32_UInt29ToDataTests.__allTests),
+        ]
+    }
 #endif

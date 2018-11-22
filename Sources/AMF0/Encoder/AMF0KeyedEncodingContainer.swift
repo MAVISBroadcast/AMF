@@ -82,7 +82,6 @@ extension _AMF0Encoder.KeyedContainer: AMF0EncodingContainer {
             storage.forEach(forEach)
         }
 
-
         let emptyKey = UInt16(0).bytes()
         data.append(contentsOf: emptyKey)
         data.append(AMF0Marker.objectEnd.rawValue)

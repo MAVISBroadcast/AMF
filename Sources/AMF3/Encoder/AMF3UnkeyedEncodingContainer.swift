@@ -73,7 +73,7 @@ extension _AMF3Encoder.UnkeyedContainer: AMF3EncodingContainer {
 
         let emptyString = UInt8(0x01)
         data.append(emptyString)
-        
+
         storage.forEach { container in
             data.append(container.data)
         }

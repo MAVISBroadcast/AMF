@@ -149,8 +149,7 @@ extension _AMF0Decoder.UnkeyedContainer {
             throw DecodingError.typeMismatch(Double.self, context)
         }
 
-        if marker == .object || marker == .strictArray || marker == .typedObject || marker == .ecmaArray {
-        }
+        if marker == .object || marker == .strictArray || marker == .typedObject || marker == .ecmaArray {}
 
         switch marker {
         case .object, .ecmaArray:

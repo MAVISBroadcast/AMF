@@ -61,7 +61,7 @@ extension _AMF3Decoder {
             index += traitsOrRefU29.variableLength ?? 1
             let traits = try decodeTraits(infoBits: traitsOrRefU29, data: data[index...])
             referenceTable.decodingObjectTraitsTable.append(traits)
-            
+
             let singleValueDecodingContainer = SingleValueContainer(
                 data: data[index...],
                 codingPath: codingPath,
@@ -70,29 +70,29 @@ extension _AMF3Decoder {
             )
             singleValueDecodingContainer.forcedMarker = .string
             var key = try singleValueDecodingContainer.decode(String.self)
-            
+
             index = singleValueDecodingContainer.index
-            
+
             while key.isEmpty == false {
                 let object = try readObject(key: key)
                 nestedContainers[key] = object
                 singleValueDecodingContainer.index = index
-                
+
                 key = (try? singleValueDecodingContainer.decode(String.self)) ?? ""
                 index = singleValueDecodingContainer.index
             }
-            
+
             return nestedContainers
         }
 
         private func decodeTraits(infoBits: UInt32, data: Data) throws -> AMF3TraitsInfo {
-            if ((infoBits & 3) == 1) {
+            if (infoBits & 3) == 1 {
                 let traitsIndex = (infoBits >> 2)
                 return referenceTable.decodingObjectTraitsTable[Int(traitsIndex)]
             }
-            let externalizable = (infoBits & 4) == 4;
-            let dynamic = (infoBits & 8) == 8;
-            let count = infoBits >> 4;
+            let externalizable = (infoBits & 4) == 4
+            let dynamic = (infoBits & 8) == 8
+            let count = infoBits >> 4
 
             let singleValueDecodingContainer = SingleValueContainer(
                 data: data,
@@ -103,12 +103,11 @@ extension _AMF3Decoder {
             singleValueDecodingContainer.forcedMarker = .string
             let className = try singleValueDecodingContainer.decode(String.self)
 
-
-            let properties = try (0..<count).map { (_) -> String in
+            let properties = try (0 ..< count).map { (_) -> String in
                 return try singleValueDecodingContainer.decode(String.self)
             }
 
-            let info = AMF3TraitsInfo.init(
+            let info = AMF3TraitsInfo(
                 className: className,
                 dynamic: dynamic,
                 externalisable: externalizable,
@@ -152,7 +151,7 @@ extension _AMF3Decoder {
                     let context = DecodingError.Context(codingPath: codingPath, debugDescription: "cannot decode key: \(key)")
                     throw DecodingError.typeMismatch(Any?.self, context)
                 }
-             } else if !containers.isEmpty {
+            } else if !containers.isEmpty {
                 unkeyedContainer.codingPath += [AnyCodingKey(stringValue: key)!]
                 index = unkeyedContainer.index
                 return unkeyedContainer

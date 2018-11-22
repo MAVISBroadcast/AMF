@@ -21,7 +21,7 @@ class AMF3PerformanceTests: XCTestCase {
                                         Airport.Runway(direction: "3/21",
                                                        distance: 1829,
                                                        surface: .flexible),
-                                        ])
+                ])
                 let encoded = try! encoder.encode(value)
                 let decoded = try! decoder.decode(Airport.self, from: encoded)
 

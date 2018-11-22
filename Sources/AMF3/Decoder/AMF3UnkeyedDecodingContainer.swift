@@ -24,7 +24,7 @@ extension _AMF3Decoder {
                 case AMF3Marker.array.rawValue:
                     let potentialReference = UInt32(variableBytes: data[index...])
                     let bitShiftedIndexOrLength = Int(potentialReference >> 1)
-                    defer{ index += potentialReference.variableLength ?? 0 }
+                    defer { index += potentialReference.variableLength ?? 0 }
                     if potentialReference & 1 == 0 {
                         let decoderContainer = referenceTable.decodingComplexObjectsTable[bitShiftedIndexOrLength] as? _AMF3Decoder.UnkeyedContainer
                         return decoderContainer?.count

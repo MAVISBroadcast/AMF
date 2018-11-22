@@ -43,8 +43,7 @@ extension _AMF3Encoder {
 
             try singleValueContainer.encode(traits.className)
 
-
-            try traits.properties.forEach { (property) in
+            try traits.properties.forEach { property in
                 try singleValueContainer.encode(property)
             }
 
