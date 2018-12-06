@@ -78,7 +78,7 @@ extension _AMF0Decoder {
                     return [:]
                 }
             } catch {
-                fatalError("\(error)") // FIXME:
+                return [:]
             }
 
             return nestedContainers
