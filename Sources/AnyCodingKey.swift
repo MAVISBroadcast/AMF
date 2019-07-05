@@ -22,7 +22,8 @@ struct AnyCodingKey: CodingKey, Equatable {
 }
 
 extension AnyCodingKey: Hashable {
-    var hashValue: Int {
-        return intValue?.hashValue ?? stringValue.hashValue
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(intValue?.hashValue ?? stringValue.hashValue)
+        _ = hasher.finalize()
     }
 }

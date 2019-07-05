@@ -39,7 +39,7 @@ extension _AMF3Encoder {
             )
             singleValueContainer.supressMarkerEncoding = true
 
-            try singleValueContainer.encode(Data(bytes: infoBits.variableBytes()))
+            try singleValueContainer.encode(Data(infoBits.variableBytes()))
 
             try singleValueContainer.encode(traits.className)
 
